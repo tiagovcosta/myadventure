@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="gl-matrix/common.js"></script>
+    <script src="gl-matrix/vec2.js"></script>
+    <script src="gl-matrix/vec3.js"></script>
+    <script src="gl-matrix/vec4.js"></script>
+    <script src="gl-matrix/mat4.js"></script>
+    
+    <script src="renderer.js"></script>
+    <script src="code.js"></script>
+    
+    <!-- Fragment shader program -->
+
+    <script id="shader-fs" type="x-shader/x-fragment">
+        uniform highp vec4 color;
+        
+        void main(void)
+        {
+            gl_FragColor = color;
+        }
+    </script>
+    
+    <!-- Vertex shader program -->
+    
+    <script id="shader-vs" type="x-shader/x-vertex">
+      attribute vec3 aVertexPosition;
+    
+      uniform mat4 uMVMatrix;
+      uniform mat4 uPMatrix;
+    
+      void main(void)
+      {
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+      }
+    </script>
+</head>
+<body onload="init()">
+    <canvas id="canvas" width="640" height="480"></canvas>
+</body>
+</html>
