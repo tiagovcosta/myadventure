@@ -3,6 +3,7 @@
          vec2, vec3, vec4, mat4, 
          Renderer */
 
+// ......................
 function Actor(position, scale, rotation, color)
 {
     'use strict';
