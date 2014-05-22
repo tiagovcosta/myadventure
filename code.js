@@ -35,8 +35,6 @@ function Actor(position, scale, rotation, color)
     this.color    = color;
     
     this.worldMatrix = mat4.create();
-    
-    //this.updateWorld();
 }
 
 Actor.prototype.updateWorld = function(parent)
@@ -260,42 +258,29 @@ function processInput()
 
     if(scalingSelected)
     {
-        var inverseR = mat4.create();
+        var tempMatrix = mat4.create();
 
-        mat4.identity(inverseR);
-        mat4.rotateZ(inverseR, inverseR, -selectedActor.rotation);
-
-        //mat4.invert(inverseMatrix, matrix);
-
-        /*var origin = vec3.fromValues(scalingOriginX, scalingOriginY, 0);
-        vec3.transformMat4(origin, origin, inverseR);
-
-        var dest = vec3.fromValues(mouseManager.mouseX, mouseManager.mouseY, 0);
-        vec3.transformMat4(dest, dest, inverseR);
-
-        selectedActor.scale[0] += Math.abs(dest[0]) - Math.abs(origin[0]);
-        selectedActor.scale[1] += Math.abs(dest[1]) - Math.abs(origin[1]);
-
-        selectedActor.position[0] += (dest[0] - origin[0])/2;
-        selectedActor.position[1] += (dest[1] - origin[1])/2;
-
-        document.getElementById("helper_span").innerHTML = (dest[0] - origin[0])/2;
-
-        scalingOriginX = mouseManager.mouseX;
-        scalingOriginY = mouseManager.mouseY;*/
+        mat4.identity(tempMatrix);
+        mat4.rotateZ(tempMatrix, tempMatrix, -selectedActor.rotation);
 
         var origin = vec3.fromValues(modOriginX, modOriginY, 0);
-        vec3.transformMat4(origin, origin, inverseR);
+        vec3.transformMat4(origin, origin, tempMatrix);
 
         var dest = vec3.fromValues(mouseManager.mouseX, mouseManager.mouseY, 0);
         vec3.subtract(dest, dest, selectedActor.position);
-        vec3.transformMat4(dest, dest, inverseR);
+        vec3.transformMat4(dest, dest, tempMatrix);
 
         selectedActor.scale[0] += Math.abs(dest[0]) - Math.abs(origin[0]);
         selectedActor.scale[1] += Math.abs(dest[1]) - Math.abs(origin[1]);
 
-        selectedActor.position[0] += (dest[0] - origin[0])/2;
-        selectedActor.position[1] += (dest[1] - origin[1])/2;
+        var displacement = vec3.fromValues((dest[0] - origin[0])/2, (dest[1] - origin[1])/2, 0);
+
+        mat4.identity(tempMatrix);
+        mat4.rotateZ(tempMatrix, tempMatrix, selectedActor.rotation);
+
+        vec3.transformMat4(displacement, displacement, tempMatrix);
+
+        vec3.add(selectedActor.position, selectedActor.position, displacement);
 
         document.getElementById("helper_span").innerHTML = (dest[0] - origin[0])/2;
 
@@ -368,7 +353,7 @@ function init()
     
     var actor1 = new Actor(vec3.fromValues(300,200,-4), 
                            vec3.fromValues(150,100,1),
-                           /*Math.PI/4*/0,
+                           Math.PI/2,
                            vec4.fromValues(0.0,0.5,0.8,1));
     
     actor1.updateWorld();
