@@ -1,7 +1,7 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true, bitwise: true */
 /*global $, window, document, Math,
          vec2, vec3, vec4, mat4, 
-         Renderer, MouseManager, MouseEvents */
+         Renderer, InputManager, MouseEvents */
 
 var scene;
 
@@ -26,7 +26,7 @@ var mouseDownY;
 var modOriginX;
 var modOriginY;
 
-var mouseManager;
+var inputManager;
 
 function Actor(position, scale, rotation, color)
 {
@@ -109,7 +109,7 @@ function mouseOverActor(actor)
 {
     'use strict';
     
-    var mousePos = vec3.fromValues(mouseManager.mouseX, mouseManager.mouseY, 0.0);
+    var mousePos = vec3.fromValues(inputManager.mouseX, inputManager.mouseY, 0.0);
     
     transformToObjectSpace(mousePos, actor);
     
@@ -241,14 +241,14 @@ function processInput()
 {
     'use strict';
     
-    while(mouseManager.mouseEventsQueue.length > 0)
+    while(inputManager.mouseEventsQueue.length > 0)
     {
-        switch(mouseManager.mouseEventsQueue.shift())
+        switch(inputManager.mouseEventsQueue.shift())
         {
             case MouseEvents.DOWN:
 
-                mouseDownX = mouseManager.mouseX;
-                mouseDownY = mouseManager.mouseY;
+                mouseDownX = inputManager.mouseX;
+                mouseDownY = inputManager.mouseY;
 
                 document.getElementById("helper_span").innerHTML = mouseDownX + '-'+ mouseDownY;
 
@@ -259,8 +259,8 @@ function processInput()
 
                 movingCamera = true;
 
-                modOriginX = mouseManager.mouseX - selectedActor.position[0];
-                modOriginY = mouseManager.mouseY - selectedActor.position[1];
+                modOriginX = inputManager.mouseX - selectedActor.position[0];
+                modOriginY = inputManager.mouseY - selectedActor.position[1];
 
 
 
@@ -286,8 +286,8 @@ function processInput()
     
     if(movingSelected)
     {
-        selectedActor.position[0] = mouseManager.mouseX - modOriginX;
-        selectedActor.position[1] = mouseManager.mouseY - modOriginY;
+        selectedActor.position[0] = inputManager.mouseX - modOriginX;
+        selectedActor.position[1] = inputManager.mouseY - modOriginY;
 
         selectedActor.updateWorld();
     } else if(scalingSelected)
@@ -300,7 +300,7 @@ function processInput()
         var origin = vec3.fromValues(modOriginX, modOriginY, 0);
         vec3.transformMat4(origin, origin, tempMatrix);
 
-        var dest = vec3.fromValues(mouseManager.mouseX, mouseManager.mouseY, 0);
+        var dest = vec3.fromValues(inputManager.mouseX, inputManager.mouseY, 0);
         vec3.subtract(dest, dest, selectedActor.position);
         vec3.transformMat4(dest, dest, tempMatrix);
 
@@ -316,8 +316,8 @@ function processInput()
 
         vec3.add(selectedActor.position, selectedActor.position, displacement);
 
-        modOriginX = mouseManager.mouseX - selectedActor.position[0];
-        modOriginY = mouseManager.mouseY - selectedActor.position[1];
+        modOriginX = inputManager.mouseX - selectedActor.position[0];
+        modOriginY = inputManager.mouseY - selectedActor.position[1];
 
         selectedActor.updateWorld();
 
@@ -327,10 +327,10 @@ function processInput()
         selectedActor.updateWorld();
     } else if(movingCamera)
     {
-        renderer.setCameraPosition(-mouseManager.mouseX + mouseDownX, -mouseManager.mouseY + mouseDownY, 0);
+        renderer.setCameraPosition(-inputManager.mouseX + mouseDownX, -inputManager.mouseY + mouseDownY, 0);
 
-        mouseDownX = mouseManager.mouseX;
-        mouseDownY = mouseManager.mouseY;
+        mouseDownX = inputManager.mouseX;
+        mouseDownY = inputManager.mouseY;
     }
 
     updateSelectedActors();
@@ -379,7 +379,7 @@ function init()
     
     canvas       = document.getElementById("canvas");
     
-    mouseManager = new MouseManager(canvas);
+    inputManager = new InputManager(canvas);
     
     renderer     = new Renderer(canvas);
     renderer.setClearColor(vec4.fromValues(0,0,0,1));

@@ -8,7 +8,7 @@ var MouseEvents =
         OUT  : 2
     };
 
-function MouseManager(canvas)
+function InputManager(canvas)
 {
     'use strict';
 
