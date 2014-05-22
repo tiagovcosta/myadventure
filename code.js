@@ -1,4 +1,4 @@
-/*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true*/
+/*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true, bitwise: true */
 /*global $, window, document, Math,
          vec2, vec3, vec4, mat4, 
          Renderer, MouseManager, MouseEvents */
@@ -14,15 +14,17 @@ var boxScalingActors;
 var sphereScalingActor;
 var rotationActor;
 
-var movingSelected = false;
+var movingCamera     = false;
+
+var movingSelected   = false;
 var rotatingSelected = false;
-var scalingSelected = false;
+var scalingSelected  = false;
+
+var mouseDownX;
+var mouseDownY;
 
 var modOriginX;
 var modOriginY;
-
-var scalingOriginX;
-var scalingOriginY;
 
 var mouseManager;
 
@@ -66,13 +68,39 @@ function Scene()
     this.actors = [];
 }
 
-function transformToObjectSpace(pos, matrix)
+function hexToRgb(hex)
+{
+    'use strict';
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
+
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
+
+function rgbToHex(r, g, b)
+{
+    'use strict';
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+function transformToObjectSpace(pos, actor)
 {
     'use strict';
     
     var inverseMatrix = mat4.create();
     
-    mat4.invert(inverseMatrix, matrix);
+    inverseMatrix = mat4.multiply(inverseMatrix, renderer.viewMatrix, actor.worldMatrix);
+
+    mat4.invert(inverseMatrix, inverseMatrix);
     
     vec3.transformMat4(pos, pos, inverseMatrix);
 }
@@ -83,7 +111,7 @@ function mouseOverActor(actor)
     
     var mousePos = vec3.fromValues(mouseManager.mouseX, mouseManager.mouseY, 0.0);
     
-    transformToObjectSpace(mousePos, actor.worldMatrix);
+    transformToObjectSpace(mousePos, actor);
     
     if(mousePos[0] >= -0.5 && mousePos[0] <= 0.5 &&
        mousePos[1] >= -0.5 && mousePos[1] <= 0.5)
@@ -219,20 +247,27 @@ function processInput()
         {
             case MouseEvents.DOWN:
 
+                mouseDownX = mouseManager.mouseX;
+                mouseDownY = mouseManager.mouseY;
+
+                document.getElementById("helper_span").innerHTML = mouseDownX + '-'+ mouseDownY;
+
                 if(select())
                 {
                     movingSelected = true;
                 }
 
+                movingCamera = true;
+
                 modOriginX = mouseManager.mouseX - selectedActor.position[0];
                 modOriginY = mouseManager.mouseY - selectedActor.position[1];
 
-                scalingOriginX = mouseManager.mouseX;
-                scalingOriginY = mouseManager.mouseY;
+
 
                 break;
             case MouseEvents.UP:
 
+                movingCamera     = false;
                 movingSelected   = false;
                 rotatingSelected = false;
                 scalingSelected  = false;
@@ -240,6 +275,7 @@ function processInput()
                 break;
             case MouseEvents.OUT:
                 
+                movingCamera     = false;
                 movingSelected   = false;
                 rotatingSelected = false;
                 scalingSelected  = false;
@@ -254,9 +290,7 @@ function processInput()
         selectedActor.position[1] = mouseManager.mouseY - modOriginY;
 
         selectedActor.updateWorld();
-    }
-
-    if(scalingSelected)
+    } else if(scalingSelected)
     {
         var tempMatrix = mat4.create();
 
@@ -282,18 +316,21 @@ function processInput()
 
         vec3.add(selectedActor.position, selectedActor.position, displacement);
 
-        document.getElementById("helper_span").innerHTML = (dest[0] - origin[0])/2;
-
         modOriginX = mouseManager.mouseX - selectedActor.position[0];
         modOriginY = mouseManager.mouseY - selectedActor.position[1];
 
         selectedActor.updateWorld();
-    }
 
-    if(rotatingSelected)
+    } else if(rotatingSelected)
     {
         selectedActor.rotation += 0.01;
         selectedActor.updateWorld();
+    } else if(movingCamera)
+    {
+        renderer.setCameraPosition(-mouseManager.mouseX + mouseDownX, -mouseManager.mouseY + mouseDownY, 0);
+
+        mouseDownX = mouseManager.mouseX;
+        mouseDownY = mouseManager.mouseY;
     }
 
     updateSelectedActors();
@@ -320,7 +357,7 @@ function update()
     
     scene.actors.sort(function(actor1, actor2)
                       {
-                            if (actor1.position[2] < actor2.zIndex.position[2])
+                            if (actor1.position[2] < actor2.position[2])
                             {
                                 return true;
                             } else
@@ -336,24 +373,22 @@ function update()
     document.getElementById("moving").innerHTML = movingSelected;
 }
 
-
-
 function init()
 {
     'use strict';
     
-    canvas = document.getElementById("canvas");
+    canvas       = document.getElementById("canvas");
     
     mouseManager = new MouseManager(canvas);
     
-    renderer = new Renderer(canvas);
+    renderer     = new Renderer(canvas);
     renderer.setClearColor(vec4.fromValues(0,0,0,1));
     
-    scene = new Scene();
+    scene      = new Scene();
     
     var actor1 = new Actor(vec3.fromValues(300,200,-4), 
                            vec3.fromValues(150,100,1),
-                           Math.PI/2,
+                           0,
                            vec4.fromValues(0.0,0.5,0.8,1));
     
     actor1.updateWorld();
@@ -381,4 +416,41 @@ function init()
                               0, vec4.fromValues(1,1,1,1));
     
     setInterval(update, 1000/60);
+}
+
+function addActor()
+{
+    'use strict';
+
+    var x = new Actor(vec3.fromValues(300,200,-4),
+                      vec3.fromValues(150,100,1),
+                      0,
+                      vec4.fromValues(0.0,0.5,0.8,1));
+
+    x.updateWorld();
+
+    scene.actors.push(x);
+}
+
+function updateActorColor()
+{
+    'use strict';
+
+    if(selectedActor !== null)
+    {
+        var color = hexToRgb(document.getElementById("actor_color").value);
+
+        selectedActor.color[0] = color.r/255;
+        selectedActor.color[1] = color.g/255;
+        selectedActor.color[2] = color.b/255;
+    }
+}
+
+function updateBackgroundColor()
+{
+    'use strict';
+
+    var color = hexToRgb(document.getElementById("background_color").value);
+
+    renderer.gl.clearColor(color.r/255, color.g/255, color.b/255, 1);
 }

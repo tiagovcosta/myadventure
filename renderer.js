@@ -19,9 +19,31 @@ function Renderer(canvas)
     this.initShaders();
     this.initBuffers();
     
+    this.cameraPosition = vec3.create();
+    this.centerPosition = vec3.create();
+    this.up             = vec3.fromValues(0,1,0);
+
+    this.viewMatrix = mat4.create();
+
+    this.setCameraPosition(0,0,0);
+
     this.projectionMatrix = mat4.create();
     mat4.ortho(this.projectionMatrix, 0, this.width, 0, this.height, 0.1, 100);
 }
+
+Renderer.prototype.setCameraPosition = function(x, y, z)
+{
+    'use strict';
+    this.cameraPosition[0] += x;
+    this.cameraPosition[1] += y;
+    this.cameraPosition[2] = z;
+
+    this.centerPosition[0] = this.cameraPosition[0];
+    this.centerPosition[1] = this.cameraPosition[1];
+    this.centerPosition[2] = -200;
+
+    mat4.lookAt(this.viewMatrix, this.cameraPosition, this.centerPosition, this.up);
+};
 
 Renderer.prototype.initWebGL = function(canvas)
 {
@@ -132,8 +154,8 @@ Renderer.prototype.initShaders = function()
     this.vertexPositionAttribute = this.gl.getAttribLocation(this.shaderProgram, "aVertexPosition");
     this.gl.enableVertexAttribArray(this.vertexPositionAttribute);
     
-    this.projectionUL = this.gl.getUniformLocation(this.shaderProgram, "uPMatrix");
-    this.worldViewUL  = this.gl.getUniformLocation(this.shaderProgram, "uMVMatrix");
+    this.viewprojUL = this.gl.getUniformLocation(this.shaderProgram, "uVPMatrix");
+    this.worldUL  = this.gl.getUniformLocation(this.shaderProgram, "uWMatrix");
     
     this.colorUL  = this.gl.getUniformLocation(this.shaderProgram, "color");
 };
@@ -171,21 +193,22 @@ Renderer.prototype.draw = function(actors)
 {
     'use strict';
   
-    /*var mvMatrix = mat4.create();
-    mat4.identity(mvMatrix);
+    var viewProj = mat4.create();
     
-    mat4.translate(mvMatrix, mvMatrix, vec3.fromValues(0.0, 0.0, -1.0));*/
+    mat4.multiply(viewProj, this.projectionMatrix, this.viewMatrix);
 
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.squareVerticesBuffer);
     this.gl.vertexAttribPointer(this.vertexPositionAttribute, 3, this.gl.FLOAT, false, 0, 0);
     
-    this.gl.uniformMatrix4fv(this.projectionUL, false, this.projectionMatrix);
+    this.gl.uniformMatrix4fv(this.viewprojUL, false, viewProj);
     
     var i;
     
     for(i = 0; i < actors.length; i++)
     {
-        this.gl.uniformMatrix4fv(this.worldViewUL, false, actors[i].worldMatrix);
+
+
+        this.gl.uniformMatrix4fv(this.worldUL, false, actors[i].worldMatrix);
         this.gl.uniform4fv(this.colorUL, actors[i].color);
         this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4);
     }
