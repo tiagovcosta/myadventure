@@ -171,10 +171,10 @@ Renderer.prototype.draw = function(actors)
 {
     'use strict';
   
-    var mvMatrix = mat4.create();
+    /*var mvMatrix = mat4.create();
     mat4.identity(mvMatrix);
     
-    mat4.translate(mvMatrix, mvMatrix, vec3.fromValues(0.0, 0.0, -1.0));
+    mat4.translate(mvMatrix, mvMatrix, vec3.fromValues(0.0, 0.0, -1.0));*/
 
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.squareVerticesBuffer);
     this.gl.vertexAttribPointer(this.vertexPositionAttribute, 3, this.gl.FLOAT, false, 0, 0);

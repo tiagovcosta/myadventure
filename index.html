@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>My Adventure</title>
     <script src="gl-matrix/common.js"></script>
     <script src="gl-matrix/vec2.js"></script>
     <script src="gl-matrix/vec3.js"></script>
     <script src="gl-matrix/vec4.js"></script>
     <script src="gl-matrix/mat4.js"></script>
     
+    <script src="input.js"></script>
     <script src="renderer.js"></script>
     <script src="code.js"></script>
     
@@ -37,5 +39,7 @@
 </head>
 <body onload="init()">
     <canvas id="canvas" width="640" height="480"></canvas>
+    <p>Moving selected: <span id="moving"></span></p>
+    <p>V: <span id="helper_span"></span></p>
 </body>
 </html>

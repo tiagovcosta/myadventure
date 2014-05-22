@@ -1,7 +1,30 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true*/
-/*global $, window, document, 
+/*global $, window, document, Math,
          vec2, vec3, vec4, mat4, 
-         Renderer */
+         Renderer, MouseManager, MouseEvents */
+
+var scene;
+
+var canvas;
+var renderer;
+
+var selectedActor;
+
+var boxScalingActors;
+var sphereScalingActor;
+var rotationActor;
+
+var movingSelected = false;
+var rotatingSelected = false;
+var scalingSelected = false;
+
+var modOriginX;
+var modOriginY;
+
+var scalingOriginX;
+var scalingOriginY;
+
+var mouseManager;
 
 function Actor(position, scale, rotation, color)
 {
@@ -13,10 +36,10 @@ function Actor(position, scale, rotation, color)
     
     this.worldMatrix = mat4.create();
     
-    this.updateWorld();
+    //this.updateWorld();
 }
 
-Actor.prototype.updateWorld = function()
+Actor.prototype.updateWorld = function(parent)
 {
     'use strict';
     
@@ -32,80 +55,17 @@ Actor.prototype.updateWorld = function()
     this.worldMatrix[12] = this.position[0];
     this.worldMatrix[13] = this.position[1];
     this.worldMatrix[14] = this.position[2];
+    
+    if(parent !== null && parent !== undefined)
+    {
+        mat4.multiply(this.worldMatrix, parent, this.worldMatrix);
+    }
 };
 
 function Scene()
 {
     'use strict';
     this.actors = [];
-}
-
-var scene;
-
-var canvas;
-var renderer;
-
-var selected;
-
-var mouseX = null;
-var mouseY = null;
-var mouseOver = false;
-
-var mouseEventsQueue = [];
-
-var MouseEvents =
-    {
-        DOWN : 0,
-        UP   : 1,
-        OUT  : 2,
-        OVER: 3
-    };
-
-function handleMouseDown(event)
-{
-    'use strict';
-    
-    mouseEventsQueue.push(MouseEvents.DOWN);
-}
-
-function handleMouseUp(event)
-{
-    'use strict';
-    
-    mouseEventsQueue.push(MouseEvents.UP);
-}
-
-function handleMouseMove(event)
-{
-    'use strict';
-    
-    if(!mouseOver)
-    {
-        mouseOver = true;
-        mouseEventsQueue.push(MouseEvents.OVER);
-    }
-    
-    var rect = canvas.getBoundingClientRect();
-    
-    mouseX = event.clientX - rect.left;
-    mouseY = canvas.height - event.clientY + rect.top;
-}
-
-function handleMouseOut(event)
-{
-    'use strict';
-    
-    mouseOver = false;
-    mouseEventsQueue.push(MouseEvents.OUT);
-}
-
-function draw()
-{
-    'use strict';
-    
-    renderer.clear();
-    
-    renderer.draw(scene.actors);
 }
 
 function transformToObjectSpace(pos, matrix)
@@ -123,7 +83,7 @@ function mouseOverActor(actor)
 {
     'use strict';
     
-    var mousePos = vec3.fromValues(mouseX, mouseY, 0.0);
+    var mousePos = vec3.fromValues(mouseManager.mouseX, mouseManager.mouseY, 0.0);
     
     transformToObjectSpace(mousePos, actor.worldMatrix);
     
@@ -136,112 +96,236 @@ function mouseOverActor(actor)
     return false;
 }
 
-function drawSelected()
+function updateSelectedActors()
 {
     'use strict';
     
-    var size = selected.scale;
+    if(selectedActor === null)
+    {
+        return;
+    }
     
-    var tl = vec3.fromValues(-size[0]/2, size[1]/2,0);
-    var tr = vec3.fromValues(size[0]/2, size[1]/2,0);
-    var bl = vec3.fromValues(-size[0]/2, -size[1]/2,0);
-    var br = vec3.fromValues(size[0]/2, -size[1]/2,0);
+    var size = selectedActor.scale;
+
+    var center = vec3.fromValues(0,0,0);
+    var tl     = vec3.fromValues(-size[0]/2, size[1]/2, 0);
+    var tr     = vec3.fromValues(size[0]/2, size[1]/2, 0);
+    var bl     = vec3.fromValues(-size[0]/2, -size[1]/2, 0);
+    var br     = vec3.fromValues(size[0]/2, -size[1]/2, 0);
     
     var rotation = mat4.create();
     mat4.identity(rotation);
-    mat4.rotateZ(rotation, rotation, selected.rotation);
+    mat4.rotateZ(rotation, rotation, selectedActor.rotation);
     
     vec3.transformMat4(tl, tl, rotation);
     vec3.transformMat4(tr, tr, rotation);
     vec3.transformMat4(bl, bl, rotation);
     vec3.transformMat4(br, br, rotation);
     
-    vec3.add(tl, tl, selected.position);
-    vec3.add(tr, tr, selected.position);
-    vec3.add(bl, bl, selected.position);
-    vec3.add(br, br, selected.position);
-    
-    tl[2] = -0.1;
-    tr[2] = -0.1;
-    bl[2] = -0.1;
-    br[2] = -0.1;
-    
-    var actors = [];
-    
-    actors.push(new Actor(tl, vec3.fromValues(10,10,1),
-                          selected.rotation, 
-                          vec4.fromValues(1,1,1,1)));
-    actors.push(new Actor(tr, vec3.fromValues(10,10,1),
-                          selected.rotation, 
-                          vec4.fromValues(1,1,1,1)));
-    actors.push(new Actor(bl, vec3.fromValues(10,10,1),
-                          selected.rotation, 
-                          vec4.fromValues(1,1,1,1)));
-    actors.push(new Actor(br, vec3.fromValues(10,10,1),
-                          selected.rotation, 
-                          vec4.fromValues(1,1,1,1)));
-    
-    var mousePos = vec3.fromValues(mouseX, mouseY, 0.0);
-    
-    var inverseWorld = mat4.create();
-    
-    mat4.invert(inverseWorld, actors[0].worldMatrix);
-    
-    vec3.transformMat4(mousePos, mousePos, inverseWorld);
-    
-    var flag = false;
-    var i;
-    for(i = 0; i < actors.length; i++)
+    vec3.add(center, center, selectedActor.position);
+    vec3.add(tl, tl, selectedActor.position);
+    vec3.add(tr, tr, selectedActor.position);
+    vec3.add(bl, bl, selectedActor.position);
+    vec3.add(br, br, selectedActor.position);
+
+    center[2] = -0.1;
+    tl[2]     = -0.1;
+    tr[2]     = -0.1;
+    bl[2]     = -0.1;
+    br[2]     = -0.1;
+
+    rotationActor.position = center;
+    rotationActor.rotation = selectedActor.rotation;
+
+    boxScalingActors[0].position = tl;
+    boxScalingActors[0].rotation = selectedActor.rotation;
+    boxScalingActors[1].position = tr;
+    boxScalingActors[1].rotation = selectedActor.rotation;
+    boxScalingActors[2].position = bl;
+    boxScalingActors[2].rotation = selectedActor.rotation;
+    boxScalingActors[3].position = br;
+    boxScalingActors[3].rotation = selectedActor.rotation;
+
+    rotationActor.updateWorld();
+    boxScalingActors[0].updateWorld();
+    boxScalingActors[1].updateWorld();
+    boxScalingActors[2].updateWorld();
+    boxScalingActors[3].updateWorld();
+
+    if(mouseOverActor(rotationActor))
     {
-        if(mouseOverActor(actors[i]))
-        {
-            actors[i].color = vec4.fromValues(1,0,0,1);
-            flag = true;
-        }
-    }
-    
-    if(flag)
-    {
-        canvas.style.cursor = "nesw-resize";
+        rotationActor.color = vec4.fromValues(1,0,0,1);
     } else
     {
-        canvas.style.cursor = "default";
+        rotationActor.color = vec4.fromValues(1,1,1,1);
     }
-    
-    renderer.draw(actors);
+
+    var i;
+    for(i = 0; i < boxScalingActors.length; i++)
+    {
+        if(mouseOverActor(boxScalingActors[i]))
+        {
+            boxScalingActors[i].color = vec4.fromValues(1,0,0,1);
+        } else
+        {
+            boxScalingActors[i].color = vec4.fromValues(1,1,1,1);
+        }
+    }
 }
 
-var movingSelected = false;
-
-function processSelected()
+function select()
 {
     'use strict';
     
-    while(mouseEventsQueue.length > 0)
+    var i;
+
+    if(selectedActor !== null)
     {
-        switch(mouseEventsQueue.shift())
+        if(mouseOverActor(rotationActor))
+        {
+            rotatingSelected = true;
+            return false;
+        }
+
+        for(i = 0; i < boxScalingActors.length; i++)
+        {
+            if(mouseOverActor(boxScalingActors[i]))
+            {
+                scalingSelected = true;
+                return false;
+            }
+        }
+    }
+
+    for(i = 0; i < scene.actors.length; i++)
+    {
+        if(mouseOverActor(scene.actors[i]))
+        {
+            selectedActor = scene.actors[i];
+
+            return true;
+        }
+    }
+    
+    selectedActor = null;
+    return false;
+}
+
+function processInput()
+{
+    'use strict';
+    
+    while(mouseManager.mouseEventsQueue.length > 0)
+    {
+        switch(mouseManager.mouseEventsQueue.shift())
         {
             case MouseEvents.DOWN:
-                if(mouseOverActor(selected))
+
+                if(select())
                 {
-                   movingSelected = true;
+                    movingSelected = true;
                 }
+
+                modOriginX = mouseManager.mouseX - selectedActor.position[0];
+                modOriginY = mouseManager.mouseY - selectedActor.position[1];
+
+                scalingOriginX = mouseManager.mouseX;
+                scalingOriginY = mouseManager.mouseY;
+
                 break;
             case MouseEvents.UP:
-                movingSelected = false;
+
+                movingSelected   = false;
+                rotatingSelected = false;
+                scalingSelected  = false;
+
                 break;
             case MouseEvents.OUT:
-                movingSelected = false;
-                break;
                 
+                movingSelected   = false;
+                rotatingSelected = false;
+                scalingSelected  = false;
+
+                break;
         }
     }
     
     if(movingSelected)
     {
-        selected.position[0] = mouseX;
-        selected.position[1] = mouseY;
-        selected.updateWorld();
+        selectedActor.position[0] = mouseManager.mouseX - modOriginX;
+        selectedActor.position[1] = mouseManager.mouseY - modOriginY;
+
+        selectedActor.updateWorld();
+    }
+
+    if(scalingSelected)
+    {
+        var inverseR = mat4.create();
+
+        mat4.identity(inverseR);
+        mat4.rotateZ(inverseR, inverseR, -selectedActor.rotation);
+
+        //mat4.invert(inverseMatrix, matrix);
+
+        /*var origin = vec3.fromValues(scalingOriginX, scalingOriginY, 0);
+        vec3.transformMat4(origin, origin, inverseR);
+
+        var dest = vec3.fromValues(mouseManager.mouseX, mouseManager.mouseY, 0);
+        vec3.transformMat4(dest, dest, inverseR);
+
+        selectedActor.scale[0] += Math.abs(dest[0]) - Math.abs(origin[0]);
+        selectedActor.scale[1] += Math.abs(dest[1]) - Math.abs(origin[1]);
+
+        selectedActor.position[0] += (dest[0] - origin[0])/2;
+        selectedActor.position[1] += (dest[1] - origin[1])/2;
+
+        document.getElementById("helper_span").innerHTML = (dest[0] - origin[0])/2;
+
+        scalingOriginX = mouseManager.mouseX;
+        scalingOriginY = mouseManager.mouseY;*/
+
+        var origin = vec3.fromValues(modOriginX, modOriginY, 0);
+        vec3.transformMat4(origin, origin, inverseR);
+
+        var dest = vec3.fromValues(mouseManager.mouseX, mouseManager.mouseY, 0);
+        vec3.subtract(dest, dest, selectedActor.position);
+        vec3.transformMat4(dest, dest, inverseR);
+
+        selectedActor.scale[0] += Math.abs(dest[0]) - Math.abs(origin[0]);
+        selectedActor.scale[1] += Math.abs(dest[1]) - Math.abs(origin[1]);
+
+        selectedActor.position[0] += (dest[0] - origin[0])/2;
+        selectedActor.position[1] += (dest[1] - origin[1])/2;
+
+        document.getElementById("helper_span").innerHTML = (dest[0] - origin[0])/2;
+
+        modOriginX = mouseManager.mouseX - selectedActor.position[0];
+        modOriginY = mouseManager.mouseY - selectedActor.position[1];
+
+        selectedActor.updateWorld();
+    }
+
+    if(rotatingSelected)
+    {
+        selectedActor.rotation += 0.01;
+        selectedActor.updateWorld();
+    }
+
+    updateSelectedActors();
+}
+
+function draw()
+{
+    'use strict';
+
+    renderer.clear();
+
+    renderer.draw(scene.actors);
+
+    if(selectedActor !== null)
+    {
+        renderer.draw(boxScalingActors);
+        renderer.draw([rotationActor]);
     }
 }
 
@@ -249,12 +333,25 @@ function update()
 {
     'use strict';
     
-    processSelected();
+    scene.actors.sort(function(actor1, actor2)
+                      {
+                            if (actor1.position[2] < actor2.zIndex.position[2])
+                            {
+                                return true;
+                            } else
+                            {
+                                return false;
+                            }
+                      });
+
+    processInput();
     
     draw();
     
-    drawSelected();
+    document.getElementById("moving").innerHTML = movingSelected;
 }
+
+
 
 function init()
 {
@@ -262,10 +359,7 @@ function init()
     
     canvas = document.getElementById("canvas");
     
-    canvas.onmousedown = handleMouseDown;
-    canvas.onmouseup   = handleMouseUp;
-    canvas.onmousemove = handleMouseMove;
-    canvas.onmouseout  = handleMouseOut;
+    mouseManager = new MouseManager(canvas);
     
     renderer = new Renderer(canvas);
     renderer.setClearColor(vec4.fromValues(0,0,0,1));
@@ -274,12 +368,32 @@ function init()
     
     var actor1 = new Actor(vec3.fromValues(300,200,-4), 
                            vec3.fromValues(150,100,1),
-                           Math.PI/4,
+                           /*Math.PI/4*/0,
                            vec4.fromValues(0.0,0.5,0.8,1));
     
+    actor1.updateWorld();
+
     scene.actors.push(actor1);
     
-    selected = actor1;
+    selectedActor    = null;
+
+    boxScalingActors = [];
+
+    boxScalingActors.push(new Actor(null, vec3.fromValues(10,10,1),
+                          0,
+                          vec4.fromValues(1,1,1,1)));
+    boxScalingActors.push(new Actor(null, vec3.fromValues(10,10,1),
+                          0,
+                          vec4.fromValues(1,1,1,1)));
+    boxScalingActors.push(new Actor(null, vec3.fromValues(10,10,1),
+                          0,
+                          vec4.fromValues(1,1,1,1)));
+    boxScalingActors.push(new Actor(null, vec3.fromValues(10,10,1),
+                          0,
+                          vec4.fromValues(1,1,1,1)));
+
+    rotationActor = new Actor(vec3.create(), vec3.fromValues(10,10,1),
+                              0, vec4.fromValues(1,1,1,1));
     
-    setInterval(update, 33);
+    setInterval(update, 1000/60);
 }
