@@ -38,12 +38,12 @@
     </script>
 </head>
 <body onload="init()">
-    <canvas id="canvas" width="640" height="480"></canvas>
+    <canvas id="canvas" width="640" height="480" tabindex="0"></canvas>
     <p>Background color: <input type="color" id="background_color" onchange="updateBackgroundColor()"></p>
     <p><input type="button" value="New Actor" onclick="addActor()"></p>
 
     <p>Moving selected: <span id="moving"></span></p>
-    <p>V: <span id="helper_span"></span></p>
+    <p><span id="helper_span"></span></p>
     <p>Actor color: <input type="color" id="actor_color" onchange="updateActorColor()"></p>
 </body>
 </html>

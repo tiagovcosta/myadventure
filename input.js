@@ -1,11 +1,12 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true */
 /*global */
 
-var MouseEvents =
+var SpecialKeys =
     {
-        DOWN : 0,
-        UP   : 1,
-        OUT  : 2
+        LEFT: 37,
+        UP: 38,
+        RIGHT: 39,
+        DOWN: 40
     };
 
 function InputManager(canvas)
@@ -14,25 +15,26 @@ function InputManager(canvas)
 
     var self              = this;
     this.canvas           = canvas;
-    this.mouseEventsQueue = [];
 
     this.mouseX           = null;
     this.mouseY           = null;
 
+    this.mouseDown        = false;
+
+    this.keyboard         = {};
+
     this.canvas.onmousedown = function(event)
     {
-        self.mouseEventsQueue.push(MouseEvents.DOWN);
+        self.mouseDown = true;
     };
 
     this.canvas.onmouseup = function(event)
     {
-        self.mouseEventsQueue.push(MouseEvents.UP);
+        self.mouseDown = false;
     };
 
     this.canvas.onmousemove = function(event)
     {
-        //self.mouseEventsQueue.push(MouseEvents.OVER);
-
         var rect = self.canvas.getBoundingClientRect();
 
         self.mouseX = event.clientX - rect.left;
@@ -41,6 +43,29 @@ function InputManager(canvas)
 
     this.canvas.onmouseout = function(event)
     {
-        self.mouseEventsQueue.push(MouseEvents.OUT);
+        self.mouseDown = false;
+    };
+
+    this.canvas.onkeydown = function(event)
+    {
+        self.keyboard[event.keyCode] = true;
+    };
+
+    this.canvas.onkeyup = function(event)
+    {
+        self.keyboard[event.keyCode] = false;
     };
 }
+
+InputManager.prototype.keyPressed = function(key)
+{
+    'use strict';
+
+    if(typeof key === "number")
+    {
+        return this.keyboard[key];
+    } else
+    {
+        return this.keyboard[key.charCodeAt()];
+    }
+};
