@@ -1,7 +1,8 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true, bitwise: true */
 /*global $, window, document, Math,
          vec2, vec3, vec4, mat4, 
-         Renderer, InputManager, SpecialKeys */
+         Renderer, InputManager, SpecialKeys,
+         Script */
 
 var scene;
 
@@ -340,18 +341,23 @@ function update()
     'use strict';
     
     scene.actors.sort(function(actor1, actor2)
-                      {
-                            if (actor1.position[2] < actor2.position[2])
-                            {
-                                return true;
-                            } else
-                            {
-                                return false;
-                            }
-                      });
+      {
+            if (actor1.position[2] < actor2.position[2])
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
+      });
 
     processInput();
     
+    scene.actors.forEach(function(entry)
+              {
+                  runScript(entry);
+              });
+
     draw();
     
     document.getElementById("moving").innerHTML = movingSelected;
@@ -378,6 +384,12 @@ function init()
                            vec4.fromValues(0.0,0.5,0.8,1));
     
     actor1.updateWorld();
+
+    var script = new Script();
+    script.conditions.push(new SnippedInstance(keyPressedSnippet, {key:'A'}));
+    script.actions.push(new SnippedInstance(moveSnippet, {distance:10}));
+
+    actor1.script = script;
 
     scene.actors.push(actor1);
     
@@ -439,4 +451,27 @@ function updateBackgroundColor()
     var color = hexToRgb(document.getElementById("background_color").value);
 
     renderer.gl.clearColor(color.r/255, color.g/255, color.b/255, 1);
+}
+
+function runScript(actor)
+{
+    'use strict';
+
+    var i;
+
+    for(i = 0; i < actor.script.conditions.length; i++)
+    {
+        var condition = actor.script.conditions[i];
+
+        if(!condition.snippet.func(actor, condition.args))
+        {
+            return false;
+        }
+    }
+
+    for(i = 0; i < actor.script.actions.length; i++)
+    {
+        var action = actor.script.actions[i];
+        action.snippet.func(actor, action.args);
+    }
 }
