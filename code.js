@@ -1,7 +1,7 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true, bitwise: true */
 /*global $, window, document, Math,
          vec2, vec3, vec4, mat4, 
-         Renderer, InputManager, MouseEvents */
+         Renderer, InputManager, SpecialKeys */
 
 var scene;
 
@@ -241,47 +241,31 @@ function processInput()
 {
     'use strict';
     
-    while(inputManager.mouseEventsQueue.length > 0)
+    if(inputManager.mouseDown)
     {
-        switch(inputManager.mouseEventsQueue.shift())
+        if(!movingSelected && !scalingSelected && !rotatingSelected && !movingCamera)
         {
-            case MouseEvents.DOWN:
+            mouseDownX = inputManager.mouseX;
+            mouseDownY = inputManager.mouseY;
 
-                mouseDownX = inputManager.mouseX;
-                mouseDownY = inputManager.mouseY;
+            //document.getElementById("helper_span").innerHTML = mouseDownX + '-'+ mouseDownY;
 
-                document.getElementById("helper_span").innerHTML = mouseDownX + '-'+ mouseDownY;
+            if(select())
+            {
+                movingSelected = true;
+            }
 
-                if(select())
-                {
-                    movingSelected = true;
-                }
+            movingCamera = true;
 
-                movingCamera = true;
-
-                modOriginX = inputManager.mouseX - selectedActor.position[0];
-                modOriginY = inputManager.mouseY - selectedActor.position[1];
-
-
-
-                break;
-            case MouseEvents.UP:
-
-                movingCamera     = false;
-                movingSelected   = false;
-                rotatingSelected = false;
-                scalingSelected  = false;
-
-                break;
-            case MouseEvents.OUT:
-                
-                movingCamera     = false;
-                movingSelected   = false;
-                rotatingSelected = false;
-                scalingSelected  = false;
-
-                break;
+            modOriginX = inputManager.mouseX - selectedActor.position[0];
+            modOriginY = inputManager.mouseY - selectedActor.position[1];
         }
+    } else
+    {
+        movingCamera     = false;
+        movingSelected   = false;
+        rotatingSelected = false;
+        scalingSelected  = false;
     }
     
     if(movingSelected)
@@ -371,6 +355,8 @@ function update()
     draw();
     
     document.getElementById("moving").innerHTML = movingSelected;
+
+    document.getElementById("helper_span").innerHTML = "Left pressed: " + inputManager.keyPressed(SpecialKeys.LEFT);
 }
 
 function init()
