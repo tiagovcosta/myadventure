@@ -1,4 +1,4 @@
 myadventure
 ===========
 
-Game development tool to create platform games
+Simple game development tool to create platform games.
