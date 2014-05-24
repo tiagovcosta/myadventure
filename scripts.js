@@ -32,17 +32,7 @@ function Script()
     this.actions    = [];
 }
 
-/*function ConditionGroup(name)
-{
-    'use strict';
-
-    this.name = name;
-}
-
-var conditions =
-    {
-
-    };*/
+//CONDITIONS
 
 var keyPressedSnippet = new Snippet(function(actor, args)
 {
@@ -51,9 +41,21 @@ var keyPressedSnippet = new Snippet(function(actor, args)
      return inputManager.keyPressed(args.key);
 }, null);
 
+//ACTIONS
+
 var moveSnippet = new Snippet(function(actor, args)
 {
     'use strict';
-    actor.position[0] += args.distance;
+    actor.position[0] += args.distance.x;
+    actor.position[1] += args.distance.y;
     actor.updateWorld();
 }, null);
+
+var conditions =
+    {
+        keyPressedSnippet : keyPressedSnippet
+    };
+var actions =
+    {
+        moveSnippet : moveSnippet
+    };

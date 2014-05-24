@@ -19,18 +19,31 @@ function InputManager(canvas)
     this.mouseX           = null;
     this.mouseY           = null;
 
-    this.mouseDown        = false;
+    this.mouseLeftDown    = false;
+    this.mouseRightDown   = false;
 
     this.keyboard         = {};
 
     this.canvas.onmousedown = function(event)
     {
-        self.mouseDown = true;
+        if(event.which == 1)
+        {
+            self.mouseLeftDown = true;
+        } else if(event.which == 3)
+        {
+            self.mouseRightDown = true;
+        }
     };
 
     this.canvas.onmouseup = function(event)
     {
-        self.mouseDown = false;
+        if(event.which == 1)
+        {
+            self.mouseLeftDown = false;
+        } else if(event.which == 3)
+        {
+            self.mouseRightDown = false;
+        }
     };
 
     this.canvas.onmousemove = function(event)
@@ -54,6 +67,12 @@ function InputManager(canvas)
     this.canvas.onkeyup = function(event)
     {
         self.keyboard[event.keyCode] = false;
+    };
+
+    this.canvas.oncontextmenu = function(e)
+    {
+            //draw here
+            e.preventDefault();
     };
 }
 

@@ -1,6 +1,35 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true */
 /*global Float32Array, vec3, mat4 */
 
+function Actor(position, scale, rotation, color)
+{
+    'use strict';
+    this.position = position;
+    this.scale    = scale;
+    this.rotation = rotation;
+    this.color    = color;
+
+    this.worldMatrix = mat4.create();
+}
+
+Actor.prototype.updateWorld = function()
+{
+    'use strict';
+
+    mat4.identity(this.worldMatrix);
+    mat4.scale(this.worldMatrix, this.worldMatrix, this.scale);
+
+    var rotation = mat4.create();
+    mat4.identity(rotation);
+    mat4.rotateZ(rotation, rotation, this.rotation);
+
+    mat4.multiply(this.worldMatrix, rotation, this.worldMatrix);
+
+    this.worldMatrix[12] = this.position[0];
+    this.worldMatrix[13] = this.position[1];
+    this.worldMatrix[14] = this.position[2];
+};
+
 function Renderer(canvas)
 {
     'use strict';
@@ -11,7 +40,7 @@ function Renderer(canvas)
     this.initWebGL(canvas);
     
     this.gl.enable(this.gl.DEPTH_TEST);
-    this.gl.depthFunc(this.gl.LEQUAL);
+    this.gl.depthFunc(this.gl.LESS);
     this.gl.enable(this.gl.CULL_FACE);
     this.gl.cullFace(this.gl.BACK);
     this.gl.frontFace(this.gl.CW);
@@ -23,15 +52,29 @@ function Renderer(canvas)
     this.centerPosition = vec3.create();
     this.up             = vec3.fromValues(0,1,0);
 
-    this.viewMatrix = mat4.create();
-
-    this.setCameraPosition(0,0,0);
+    this.viewMatrix     = mat4.create();
+    this.viewProj       = mat4.create();
 
     this.projectionMatrix = mat4.create();
     mat4.ortho(this.projectionMatrix, 0, this.width, 0, this.height, 0.1, 100);
+
+    this.moveCameraPosition(0,0,0);
 }
 
-Renderer.prototype.setCameraPosition = function(x, y, z)
+Renderer.prototype.transformToObjectSpace = function(pos, actor)
+{
+    'use strict';
+
+    var inverseMatrix = mat4.create();
+
+    inverseMatrix = mat4.multiply(inverseMatrix, this.viewMatrix, actor.worldMatrix);
+
+    mat4.invert(inverseMatrix, inverseMatrix);
+
+    vec3.transformMat4(pos, pos, inverseMatrix);
+};
+
+Renderer.prototype.moveCameraPosition = function(x, y, z)
 {
     'use strict';
     this.cameraPosition[0] += x;
@@ -43,6 +86,8 @@ Renderer.prototype.setCameraPosition = function(x, y, z)
     this.centerPosition[2] = -200;
 
     mat4.lookAt(this.viewMatrix, this.cameraPosition, this.centerPosition, this.up);
+
+    mat4.multiply(this.viewProj, this.projectionMatrix, this.viewMatrix);
 };
 
 Renderer.prototype.initWebGL = function(canvas)
@@ -192,22 +237,16 @@ Renderer.prototype.clear = function()
 Renderer.prototype.draw = function(actors)
 {
     'use strict';
-  
-    var viewProj = mat4.create();
-    
-    mat4.multiply(viewProj, this.projectionMatrix, this.viewMatrix);
 
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.squareVerticesBuffer);
     this.gl.vertexAttribPointer(this.vertexPositionAttribute, 3, this.gl.FLOAT, false, 0, 0);
     
-    this.gl.uniformMatrix4fv(this.viewprojUL, false, viewProj);
+    this.gl.uniformMatrix4fv(this.viewprojUL, false, this.viewProj);
     
     var i;
     
     for(i = 0; i < actors.length; i++)
     {
-
-
         this.gl.uniformMatrix4fv(this.worldUL, false, actors[i].worldMatrix);
         this.gl.uniform4fv(this.colorUL, actors[i].color);
         this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4);

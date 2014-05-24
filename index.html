@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-ng-app="youradventure">
 <head>
     <title>My Adventure</title>
     <script src="gl-matrix/common.js"></script>
@@ -7,10 +7,14 @@
     <script src="gl-matrix/vec3.js"></script>
     <script src="gl-matrix/vec4.js"></script>
     <script src="gl-matrix/mat4.js"></script>
+    <script src="jscolor-1.4.2/jscolor.js"></script>
+    <script src="angular.min.js"></script>
     
     <script src="input.js"></script>
+    <script src="utilities.js"></script>
     <script src="scripts.js"></script>
     <script src="renderer.js"></script>
+    <script src="game.js"></script>
     <script src="code.js"></script>
     
     <!-- Fragment shader program -->
@@ -38,13 +42,23 @@
       }
     </script>
 </head>
-<body onload="init()">
-    <canvas id="canvas" width="640" height="480" tabindex="0"></canvas>
-    <p>Background color: <input type="color" id="background_color" onchange="updateBackgroundColor()"></p>
-    <p><input type="button" value="New Actor" onclick="addActor()"></p>
+<body id="body" data-ng-controller="MainCtrl" onload="init()">
+    <canvas id="canvas"
+            width="640" height="480"
+            tabindex="0"
+            data-ng-mousedown="mouseDown($event)"
+            data-ng-mouseup="mouseUp()"
+            data-ng-mousemove="mouseMove()"></canvas>
+    <p>Background color: <input class="color"
+                                data-ng-model="backgroundColor"></p>
 
-    <p>Moving selected: <span id="moving"></span></p>
+    <p><input type="button" value="New Actor" onclick="game.addActor(vec3.fromValues(300,200,-4),
+                       vec3.fromValues(150,100,1),
+                       0,
+                       vec4.fromValues(0.0,0.5,0.8,1))"></p>
+
     <p><span id="helper_span"></span></p>
-    <p>Actor color: <input type="color" id="actor_color" onchange="updateActorColor()"></p>
+    <p>Actor color: <input class="color"
+                           data-ng-model="selectedColor"></p>
 </body>
 </html>
