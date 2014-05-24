@@ -1,6 +1,6 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true continue: true */
 /*global vec3, vec4,
-         Actor, Script */
+         Actor, Script*/
 
 function DynamicActor(name, position, scale, rotation, color)
 {

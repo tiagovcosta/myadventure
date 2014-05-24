@@ -7,7 +7,7 @@ function ArgumentDesc(name, type, deft)
 
     this.name = name;
     this.type = type;
-    this.deft = deft
+    this.deft = deft;
 }
 
 function Snippet(name, func, argsDescs)
@@ -36,6 +36,8 @@ function Rule()
 
 Rule.prototype.newCondition = function(condition)
 {
+    'use strict';
+
     var args = {};
 
     var i;
@@ -46,10 +48,12 @@ Rule.prototype.newCondition = function(condition)
     }
 
     this.conditions.push(new SnippedInstance(condition, args));
-}
+};
 
 Rule.prototype.newAction = function(action)
 {
+    'use strict';
+
     var args = {};
 
     var i;
@@ -60,7 +64,7 @@ Rule.prototype.newAction = function(action)
     }
 
     this.actions.push(new SnippedInstance(action, args));
-}
+};
 
 function Script(name)
 {
@@ -71,8 +75,9 @@ function Script(name)
 
 Script.prototype.newRule = function()
 {
+    'use strict';
     this.rules.push(new Rule());
-}
+};
 
 //CONDITIONS
 

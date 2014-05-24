@@ -1,5 +1,22 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true */
-/*global Float32Array, vec3, mat4 */
+/*global Float32Array, vec2, vec3, mat4 */
+
+function AABB(min, max)
+{
+    'use strict';
+    this.min = min;
+    this.max = max;
+}
+
+AABB.prototype.overlapping = function(otherAABB)
+{
+    'use strict';
+
+    return !( otherAABB.min[0] > this.max[0] ||
+              otherAABB.max[0] < this.min[0] ||
+              otherAABB.min[1] < this.max[1] ||
+              otherAABB.max[1] > this.min[1]);
+};
 
 function Actor(position, scale, rotation, color)
 {
@@ -10,6 +27,8 @@ function Actor(position, scale, rotation, color)
     this.color    = color;
 
     this.worldMatrix = mat4.create();
+
+    this.aabb = new AABB();
 }
 
 Actor.prototype.updateWorld = function()
@@ -29,6 +48,46 @@ Actor.prototype.updateWorld = function()
     this.worldMatrix[13] = this.position[1];
     this.worldMatrix[14] = this.position[2];
 };
+
+Actor.prototype.collidingFromLeft = function(otherActor)
+{
+    'use strict';
+
+    return this.aabb.overlapping(otherActor.aabb) && this.right >= otherActor.left;
+};
+
+Actor.prototype.collidingFromRight = function(otherActor)
+{
+    'use strict';
+
+    return this.aabb.overlapping(otherActor.aabb) && this.left <= otherActor.right;
+};
+
+Actor.prototype.collidingFromTop = function(otherActor)
+{
+    'use strict';
+
+    return this.aabb.overlapping(otherActor.aabb) && this.bottom <= otherActor.top;
+};
+
+Actor.prototype.collidingFromBottom = function(otherActor)
+{
+    'use strict';
+
+    return this.aabb.overlapping(otherActor.aabb) && this.top >= otherActor.bottom;
+};
+
+Actor.prototype.colliding = function(otherActor)
+{
+    'use strict';
+
+    return this.aabb.overlapping(otherActor.aabb);
+};
+
+////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
 
 function Renderer(canvas)
 {

@@ -9,8 +9,9 @@
     <script src="gl-matrix/mat4.js"></script>
     <script src="jquery-2.1.1.min.js"></script>
     <script src="angular.min.js"></script>
-    <script src="jsbox2d.min.js"></script>
+    <script src="matter-0.8.0.js"></script>
     
+    <script src="physics.js"></script>
     <script src="input.js"></script>
     <script src="utilities.js"></script>
     <script src="scripts.js"></script>
@@ -51,9 +52,9 @@
             data-ng-mouseout="mouseUp()"
             data-ng-mousemove="mouseMove()"></canvas>
 
-    <!------------------------->
-    <!-- GAME CUSTOMIZATION --->
-    <!------------------------->
+    <!--/////////////////////-->
+    <!-- GAME CUSTOMIZATION /-->
+    <!--/////////////////////-->
 
     <p>Background color: <input type="color"
                                 data-ng-model="backgroundColor"></p>
@@ -61,9 +62,9 @@
     <p>View distance: <input type="number"
                              data-ng-model="viewDistance"></p>
 
-    <!-------------------------->
-    <!-- ACTOR CUSTOMIZATION --->
-    <!-------------------------->
+    <!--//////////////////////-->
+    <!-- ACTOR CUSTOMIZATION /-->
+    <!--//////////////////////-->
 
     <p>
         <input type="button" value="New Actor"
@@ -92,9 +93,9 @@
         {{script.name}}
     </div>
 
-    <!--------------------------->
-    <!-- SCRIPT CUSTOMIZATION --->
-    <!--------------------------->
+    <!--///////////////////////-->
+    <!-- SCRIPT CUSTOMIZATION /-->
+    <!--///////////////////////-->
 
     <p><input type="button" value="New Script"
               data-ng-click="game.newScript()"></p>
