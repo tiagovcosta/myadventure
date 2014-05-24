@@ -35,6 +35,14 @@ module.controller("MainCtrl", function($scope)
 {
     'use strict';
 
+    $scope.scripts = [];
+    $scope.selectedScript = null;
+
+    $scope.selectScript = function(script)
+    {
+        $scope.selectedScript = script;
+    };
+
     $scope.selectedActor    = null;
 
     $scope.movingCamera     = false;
@@ -331,6 +339,7 @@ module.controller("MainCtrl", function($scope)
     {
         if($scope.selectedActor !== null)
         {
+            $scope.updateSelectedActors();
             renderer.draw($scope.boxScalingActors);
             renderer.draw([$scope.rotationActor]);
         }
@@ -345,7 +354,7 @@ function draw()
 
     renderer.draw(game.actors);
 
-    angular.element(document.getElementById("body")).scope().drawSelectedActors();
+    angular.element("body").scope().drawSelectedActors();
 }
 
 function update()
@@ -356,7 +365,7 @@ function update()
 
     draw();
 
-    document.getElementById("helper_span").innerHTML = "Left pressed: " + inputManager.keyPressed(SpecialKeys.LEFT);
+    $("#helper_span").innerHTML = "Left pressed: " + inputManager.keyPressed(SpecialKeys.LEFT);
 }
 
 function init()
@@ -370,7 +379,7 @@ function init()
     renderer     = new Renderer(canvas);
     renderer.setClearColor(vec4.fromValues(0,0,0,1));
     
-    game      = new Game();
+    game       = new Game();
     
     var actor1 = game.addActor("actor1", vec3.fromValues(300,200,-4),
                            vec3.fromValues(150,100,1),
@@ -378,11 +387,16 @@ function init()
                            vec4.fromValues(0.0,0.5,0.8,1));
 
     var script = game.newScript();
+    script.rules.push(new Rule());
 
-    script.conditions.push(new SnippedInstance(conditions.keyPressedSnippet, {key:'A'}));
-    script.actions.push(new SnippedInstance(actions.moveSnippet, {distance:{x:10, y:5}}));
+    script.rules[0].conditions.push(new SnippedInstance(conditions.keyPressedSnippet, {key:'A'}));
+    script.rules[0].actions.push(new SnippedInstance(actions.moveSnippet, {distance:{x:10, y:5}}));
 
     actor1.script = script;
     
+    //Init scripts list
+    angular.element("body").scope().scripts = game.scripts;
+    angular.element("body").scope().$apply();
+
     setInterval(update, 1000/60);
 }

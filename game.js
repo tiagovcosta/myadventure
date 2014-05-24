@@ -47,39 +47,45 @@ Game.prototype.runScripts = function()
 
     var i;
     var j;
+    var k;
 
-    for(j = 0; j < this.actors.length; j++)
+    for(i = 0; i < this.actors.length; i++)
     {
-        var actor = this.actors[j];
+        var actor = this.actors[i];
 
         if(actor.script === null || actor.script === undefined)
         {
             continue;
         }
 
-        var flag = true;
-
-        //Check conditions
-        for(i = 0; i < actor.script.conditions.length; i++)
+        for(j = 0; j < actor.script.rules.length; j++)
         {
-            var condition = actor.script.conditions[i];
+            var rule = actor.script.rules[j];
 
-            if(!condition.snippet.func(actor, condition.args))
+            var flag = true;
+
+            //Check conditions
+            for(k = 0; k < rule.conditions.length; k++)
             {
-                flag = false;
+                var condition = rule.conditions[k];
+
+                if(!condition.snippet.func(actor, condition.args))
+                {
+                    flag = false;
+                }
             }
-        }
 
-        if(!flag) //If not all conditions are met
-        {
-            continue;
-        }
+            if(!flag) //If not all conditions are met
+            {
+                continue;
+            }
 
-        //Execute actions
-        for(i = 0; i < actor.script.actions.length; i++)
-        {
-            var action = actor.script.actions[i];
-            action.snippet.func(actor, action.args);
+            //Execute actions
+            for(k = 0; k < rule.actions.length; k++)
+            {
+                var action = rule.actions[k];
+                action.snippet.func(actor, action.args);
+            }
         }
     }
 };
@@ -99,11 +105,11 @@ Game.prototype.addActor = function(name, position, scale, rotation, color)
     return x;
 };
 
-Game.prototype.newScript = function()
+Game.prototype.newScript = function(name)
 {
     'use strict';
 
-    var x = new Script();
+    var x = new Script(typeof name !== "undefined" ? name : "script"+this.scripts.length);
 
     this.scripts.push(x);
 

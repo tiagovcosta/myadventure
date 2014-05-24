@@ -9,11 +9,12 @@ function ArgumentDesc(name, type)
     this.type = type;
 }
 
-function Snippet(func, argsDescs)
+function Snippet(name, func, argsDescs)
 {
     'use strict';
 
-    this.func = func;
+    this.name      = name;
+    this.func      = func;
     this.argsDescs = argsDescs;
 }
 
@@ -25,16 +26,23 @@ function SnippedInstance(snippet, args)
     this.args    = args;
 }
 
-function Script()
+function Rule()
 {
     'use strict';
     this.conditions = [];
     this.actions    = [];
 }
 
+function Script(name)
+{
+    'use strict';
+    this.name       = name;
+    this.rules      = [];
+}
+
 //CONDITIONS
 
-var keyPressedSnippet = new Snippet(function(actor, args)
+var keyPressedSnippet = new Snippet("Key Pressed", function(actor, args)
 {
      'use strict';
 
@@ -43,7 +51,7 @@ var keyPressedSnippet = new Snippet(function(actor, args)
 
 //ACTIONS
 
-var moveSnippet = new Snippet(function(actor, args)
+var moveSnippet = new Snippet("Move", function(actor, args)
 {
     'use strict';
     actor.position[0] += args.distance.x;
