@@ -7,7 +7,7 @@
     <script src="gl-matrix/vec3.js"></script>
     <script src="gl-matrix/vec4.js"></script>
     <script src="gl-matrix/mat4.js"></script>
-    <script src="jscolor-1.4.2/jscolor.js"></script>
+    <script src="jquery-2.1.1.min.js"></script>
     <script src="angular.min.js"></script>
     
     <script src="input.js"></script>
@@ -48,17 +48,25 @@
             tabindex="0"
             data-ng-mousedown="mouseDown($event)"
             data-ng-mouseup="mouseUp()"
+            data-ng-mouseout="mouseUp()"
             data-ng-mousemove="mouseMove()"></canvas>
-    <p>Background color: <input class="color"
+    <p>Background color: <input type="color"
                                 data-ng-model="backgroundColor"></p>
 
-    <p><input type="button" value="New Actor" onclick="game.addActor(vec3.fromValues(300,200,-4),
+    <p><input type="button" value="New Actor" onclick="game.addActor('actor', vec3.fromValues(300,200,-4),
                        vec3.fromValues(150,100,1),
                        0,
                        vec4.fromValues(0.0,0.5,0.8,1))"></p>
 
     <p><span id="helper_span"></span></p>
-    <p>Actor color: <input class="color"
-                           data-ng-model="selectedColor"></p>
+
+    <div data-ng-show="selectedActor !== null">
+        Actor:
+        <p>Name: <input type="text"
+                        data-ng-model="selectedActor.name"></p>
+        <p>Color: <input type="color"
+                         data-ng-model="selectedColor"></p>
+    </div>
+
 </body>
 </html>

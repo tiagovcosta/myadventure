@@ -2,9 +2,11 @@
 /*global vec3, vec4,
          Actor, Script */
 
-function DynamicActor(position, scale, rotation, color)
+function DynamicActor(name, position, scale, rotation, color)
 {
     'use strict';
+
+    this.name = name;
 
     Actor.call(this, position, scale, rotation, color);
 
@@ -82,14 +84,13 @@ Game.prototype.runScripts = function()
     }
 };
 
-Game.prototype.addActor = function(position, scale, rotation, color)
+Game.prototype.addActor = function(name, position, scale, rotation, color)
 {
     'use strict';
 
-    var x = new Actor(position,
-                      scale,
-                      rotation,
-                      color);
+    var x = new DynamicActor(name, position,
+                             scale, rotation,
+                             color);
 
     x.updateWorld();
 

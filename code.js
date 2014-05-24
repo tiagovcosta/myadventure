@@ -10,6 +10,25 @@ var inputManager;
 
 var game;
 
+var canvas;
+
+function mouseOverActor(actor)
+{
+    'use strict';
+
+    var mousePos = vec3.fromValues(inputManager.mouseX, inputManager.mouseY, 0.0);
+
+    renderer.transformToObjectSpace(mousePos, actor);
+
+    if(mousePos[0] >= -0.5 && mousePos[0] <= 0.5 &&
+       mousePos[1] >= -0.5 && mousePos[1] <= 0.5)
+    {
+        return true;
+    }
+
+    return false;
+}
+
 var module = angular.module('youradventure', []);
 
 module.controller("MainCtrl", function($scope)
@@ -44,18 +63,25 @@ module.controller("MainCtrl", function($scope)
                                          vec4.fromValues(1,1,1,1)),
                                new Actor(null,
                                          vec3.fromValues(10,10,1),
+                                         0,
                                          vec4.fromValues(1,1,1,1))];
     
     $scope.sphereScalingActor = null;
 
     $scope.rotationActor = new Actor(vec3.create(),
                                      vec3.fromValues(10,10,1),
+                                     0,
                                      vec4.fromValues(1,1,1,1));
 
     $scope.backgroundColor = "#000";
     
     $scope.$watch("backgroundColor", function()
     {
+        if(renderer === undefined)
+        {
+            return;
+        }
+
         var color = Utilities.hexToRgb($scope.backgroundColor);
 
         renderer.gl.clearColor(color.r/255, color.g/255, color.b/255, 1);
@@ -65,6 +91,11 @@ module.controller("MainCtrl", function($scope)
     
     $scope.$watch("selectedColor", function()
     {
+        if($scope.selectedActor === null)
+        {
+            return;
+        }
+
         var color = Utilities.hexToRgb($scope.selectedColor);
 
         $scope.selectedActor.color[0] = color.r/255;
@@ -74,6 +105,11 @@ module.controller("MainCtrl", function($scope)
     
     $scope.$watch("selectedActor", function()
     {
+        if($scope.selectedActor === null)
+        {
+            return;
+        }
+
         var color = $scope.selectedActor.color;
         $scope.selectedColor = Utilities.rgbToHex(color[0]*255,
                                                   color[1]*255,
@@ -100,7 +136,11 @@ module.controller("MainCtrl", function($scope)
                 $scope.movingSelected = true;
             }
 
-            $scope.movingCamera = true;
+            if($scope.selectedActor === null)
+            {
+                $scope.movingCamera = true;
+                return;
+            }
 
             $scope.mouseDownOffsetX = inputManager.mouseX - $scope.selectedActor.position[0];
             $scope.mouseDownOffsetY = inputManager.mouseY - $scope.selectedActor.position[1];
@@ -297,25 +337,6 @@ module.controller("MainCtrl", function($scope)
     };
 });
 
-var canvas;
-
-function mouseOverActor(actor)
-{
-    'use strict';
-
-    var mousePos = vec3.fromValues(inputManager.mouseX, inputManager.mouseY, 0.0);
-
-    renderer.transformToObjectSpace(mousePos, actor);
-
-    if(mousePos[0] >= -0.5 && mousePos[0] <= 0.5 &&
-       mousePos[1] >= -0.5 && mousePos[1] <= 0.5)
-    {
-        return true;
-    }
-
-    return false;
-}
-
 function draw()
 {
     'use strict';
@@ -351,7 +372,7 @@ function init()
     
     game      = new Game();
     
-    var actor1 = game.addActor(vec3.fromValues(300,200,-4),
+    var actor1 = game.addActor("actor1", vec3.fromValues(300,200,-4),
                            vec3.fromValues(150,100,1),
                            0,
                            vec4.fromValues(0.0,0.5,0.8,1));
