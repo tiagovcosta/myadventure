@@ -9,6 +9,7 @@
     <script src="gl-matrix/mat4.js"></script>
     <script src="jquery-2.1.1.min.js"></script>
     <script src="angular.min.js"></script>
+    <script src="jsbox2d.min.js"></script>
     
     <script src="input.js"></script>
     <script src="utilities.js"></script>
@@ -49,8 +50,20 @@
             data-ng-mouseup="mouseUp()"
             data-ng-mouseout="mouseUp()"
             data-ng-mousemove="mouseMove()"></canvas>
+
+    <!------------------------->
+    <!-- GAME CUSTOMIZATION --->
+    <!------------------------->
+
     <p>Background color: <input type="color"
                                 data-ng-model="backgroundColor"></p>
+
+    <p>View distance: <input type="number"
+                             data-ng-model="viewDistance"></p>
+
+    <!-------------------------->
+    <!-- ACTOR CUSTOMIZATION --->
+    <!-------------------------->
 
     <p>
         <input type="button" value="New Actor"
@@ -79,8 +92,12 @@
         {{script.name}}
     </div>
 
+    <!--------------------------->
+    <!-- SCRIPT CUSTOMIZATION --->
+    <!--------------------------->
+
     <p><input type="button" value="New Script"
-              onclick="game.newScript()"></p>
+              data-ng-click="game.newScript()"></p>
 
     <div data-ng-if="selectedScript !== null">
         <h2>Script Details:</h2>

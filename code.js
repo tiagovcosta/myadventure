@@ -35,6 +35,8 @@ module.controller("MainCtrl", function($scope)
 {
     'use strict';
 
+    $scope.game = null;
+
     $scope.scripts = [];
     $scope.selectedScript = null;
 
@@ -392,12 +394,13 @@ function init()
     var script = game.newScript();
     script.rules.push(new Rule());
 
-    script.rules[0].conditions.push(new SnippedInstance(conditions.keyPressedSnippet, {key:'A'}));
-    script.rules[0].actions.push(new SnippedInstance(actions.moveSnippet, {distanceX:10, distanceY:5}));
+    script.rules[0].newCondition(conditions.keyPressedSnippet);
+    script.rules[0].newAction(actions.moveSnippet);
 
     actor1.script = script;
     
-    //Init scripts list
+    //Init game on angularjs
+    angular.element("body").scope().game    = game;
     angular.element("body").scope().scripts = game.scripts;
     angular.element("body").scope().$apply();
 
