@@ -43,6 +43,9 @@ module.controller("MainCtrl", function($scope)
         $scope.selectedScript = script;
     };
 
+    $scope.conditions = conditions;
+    $scope.actions    = actions;
+
     $scope.selectedActor    = null;
 
     $scope.movingCamera     = false;
@@ -390,7 +393,7 @@ function init()
     script.rules.push(new Rule());
 
     script.rules[0].conditions.push(new SnippedInstance(conditions.keyPressedSnippet, {key:'A'}));
-    script.rules[0].actions.push(new SnippedInstance(actions.moveSnippet, {distance:{x:10, y:5}}));
+    script.rules[0].actions.push(new SnippedInstance(actions.moveSnippet, {distanceX:10, distanceY:5}));
 
     actor1.script = script;
     

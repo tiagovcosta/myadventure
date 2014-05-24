@@ -105,11 +105,11 @@ Game.prototype.addActor = function(name, position, scale, rotation, color)
     return x;
 };
 
-Game.prototype.newScript = function(name)
+Game.prototype.newScript = function()
 {
     'use strict';
 
-    var x = new Script(typeof name !== "undefined" ? name : "script"+this.scripts.length);
+    var x = new Script("script"+this.scripts.length);
 
     this.scripts.push(x);
 

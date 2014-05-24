@@ -18,7 +18,6 @@
     <script src="code.js"></script>
     
     <!-- Fragment shader program -->
-
     <script id="shader-fs" type="x-shader/x-fragment">
         uniform highp vec4 color;
         
@@ -29,7 +28,6 @@
     </script>
     
     <!-- Vertex shader program -->
-    
     <script id="shader-vs" type="x-shader/x-vertex">
       attribute vec3 aVertexPosition;
     
@@ -41,6 +39,7 @@
         gl_Position = uVPMatrix * uWMatrix * vec4(aVertexPosition, 1.0);
       }
     </script>
+
 </head>
 <body id="body" data-ng-controller="MainCtrl" onload="init()">
     <canvas id="canvas"
@@ -53,10 +52,14 @@
     <p>Background color: <input type="color"
                                 data-ng-model="backgroundColor"></p>
 
-    <p><input type="button" value="New Actor" onclick="game.addActor('actor', vec3.fromValues(300,200,-4),
-                       vec3.fromValues(150,100,1),
-                       0,
-                       vec4.fromValues(0.0,0.5,0.8,1))"></p>
+    <p>
+        <input type="button" value="New Actor"
+               onclick="game.addActor('actor',
+                        vec3.fromValues(300,200,-4),
+                        vec3.fromValues(150,100,1),
+                        0,
+                        vec4.fromValues(0.0,0.5,0.8,1))">
+    </p>
 
     <p><span id="helper_span"></span></p>
 
@@ -66,31 +69,70 @@
                         data-ng-model="selectedActor.name"></p>
         <p>Color: <input type="color"
                          data-ng-model="selectedColor"></p>
+        <p>Script: <select data-ng-model="selectedActor.script"
+                           data-ng-options="script.name for script in scripts"></select></p>
     </div>
 
-    <div>
-        <h2>Scripts:</h2>
-            <div data-ng-repeat="script in scripts"
-                data-ng-click="selectScript(script)">
-                {{script.name}}
-            </div>
+    <h1>Scripts:</h1>
+    <div data-ng-repeat="script in scripts"
+        data-ng-click="selectScript(script)">
+        {{script.name}}
     </div>
+
+    <p><input type="button" value="New Script"
+              onclick="game.newScript()"></p>
 
     <div data-ng-if="selectedScript !== null">
-        <h3>Script Details:</h3>
+        <h2>Script Details:</h2>
         Name: <input type="text" data-ng-model="selectedScript.name">
-        Number of Rules: {{selectedScript.rules.length}}
+        <p>Number of Rules: {{selectedScript.rules.length}}</p>
+
+        <p><input type="button" value="New Rule"
+              data-ng-click="selectedScript.newRule()"></p>
 
         <div data-ng-repeat="rule in selectedScript.rules">
-            <h4>Rule {{$index}}</h4>
-            Conditions:
+            <h3>Rule {{$index+1}}</h3>
+            <h4>Conditions:</h4>
             <p data-ng-repeat="condition in rule.conditions">
-                {{condition.snippet.name}}
+                {{condition.snippet.name}} ->
+                <span data-ng-repeat="argument in condition.snippet.argsDescs">{{argument.name}} =
+                    <span data-ng-switch="argument.type">
+                        <span data-ng-switch-when="char">
+                            <input type="text" data-ng-model="condition.args[argument.name]">
+                        </span>
+                        <span data-ng-switch-when="number">
+                            <input type="number" data-ng-model="condition.args[argument.name]">
+                        </span>
+                    </span>
+                </span>
             </p>
-            Actions:
+
+            New Condition:
+            <select data-ng-model="newCondition"
+                    data-ng-options="value.name for (key, value) in conditions"></select>
+            <input type="button" value="Create"
+                   data-ng-click="rule.newCondition(newCondition)">
+
+            <h4>Actions:</h4>
             <p data-ng-repeat="action in rule.actions">
-                {{action.snippet.name}}
+                 {{action.snippet.name}} ->
+                <span data-ng-repeat="argument in action.snippet.argsDescs">{{argument.name}} =
+                    <span data-ng-switch="argument.type">
+                        <span data-ng-switch-when="char">
+                            <input type="text" data-ng-model="action.args[argument.name]">
+                        </span>
+                        <span data-ng-switch-when="number">
+                            <input type="number" data-ng-model="action.args[argument.name]">
+                        </span>
+                    </span>
+                </span>
             </p>
+
+            New Action:
+            <select data-ng-model="newAction"
+                    data-ng-options="value.name for (key, value) in actions"></select>
+            <input type="button" value="Create"
+                   data-ng-click="rule.newAction(newAction)">
         </div>
 
     </div>
