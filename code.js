@@ -63,26 +63,26 @@ module.controller("MainCtrl", function($scope)
     $scope.mouseDownOffsetY   = 0;
     
     $scope.boxScalingActors = [new Actor(null,
-                                         vec3.fromValues(10,10,1),
+                                         vec3.fromValues(0.25,0.25,1),
                                          0,
                                          vec4.fromValues(1,1,1,1)),
                                new Actor(null,
-                                         vec3.fromValues(10,10,1),
+                                         vec3.fromValues(0.25,0.25,1),
                                          0,
                                          vec4.fromValues(1,1,1,1)),
                                new Actor(null,
-                                         vec3.fromValues(10,10,1),
+                                         vec3.fromValues(0.25,0.25,1),
                                          0,
                                          vec4.fromValues(1,1,1,1)),
                                new Actor(null,
-                                         vec3.fromValues(10,10,1),
+                                         vec3.fromValues(0.25,0.25,1),
                                          0,
                                          vec4.fromValues(1,1,1,1))];
     
     $scope.sphereScalingActor = null;
 
     $scope.rotationActor = new Actor(vec3.create(),
-                                     vec3.fromValues(10,10,1),
+                                     vec3.fromValues(0.25,0.25,1),
                                      0,
                                      vec4.fromValues(1,1,1,1));
 
