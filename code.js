@@ -368,6 +368,8 @@ function update()
     
     game.runScripts();
 
+    game.update(1/60);
+
     draw();
 
     $("#helper_span").innerHTML = "Left pressed: " + inputManager.keyPressed(SpecialKeys.LEFT);
@@ -386,8 +388,8 @@ function init()
     
     game       = new Game();
     
-    var actor1 = game.addActor("actor1", vec3.fromValues(300,200,-4),
-                           vec3.fromValues(150,100,1),
+    var actor1 = game.addActor("actor1", vec3.fromValues(10,10,-4),
+                           vec3.fromValues(5,5,5),
                            0,
                            vec4.fromValues(0.0,0.5,0.8,1));
 

@@ -128,6 +128,10 @@ function Renderer(canvas)
     this.projectionMatrix = mat4.create();
     mat4.ortho(this.projectionMatrix, 0, this.width, 0, this.height, 0.1, 100);
 
+    var ratio = this.width/this.height;
+
+    //mat4.ortho(this.projectionMatrix, 0, 20, 0, 20/ratio, 0.1, 20);
+
     this.moveCameraPosition(0,0,0);
 }
 

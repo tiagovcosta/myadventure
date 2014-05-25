@@ -1,5 +1,5 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true continue: true */
-/*global vec3, vec4,
+/*global vec2, vec3, vec4,
          Actor, Script*/
 
 function DynamicActor(name, position, scale, rotation, color)
@@ -11,10 +11,39 @@ function DynamicActor(name, position, scale, rotation, color)
     this.name   = name;
     this.type   = null;
     this.script = null;
+
+    this.velocity = vec2.create();
+    this.acceleration = vec2.create();
 }
 
 DynamicActor.prototype = Object.create(Actor.prototype);
 DynamicActor.prototype.constructor = DynamicActor;
+
+DynamicActor.prototype.update = function(dt)
+{
+    'use strict';
+
+    var dt_sq = Math.pow(dt, 2);
+
+    this.position[0] = this.position[0] + this.velocity[0] * dt + 0.5 * this.acceleration[0] * dt_sq;
+    this.position[1] = this.position[1] + this.velocity[1] * dt + 0.5 * this.acceleration[1] * dt_sq;
+
+    this.velocity[0] += this.acceleration[0] * dt;
+    this.velocity[1] += this.acceleration[1] * dt;
+
+    this.acceleration[0] = 0;
+    this.acceleration[1] = 0;
+
+    this.updateWorld();
+};
+
+DynamicActor.prototype.accelarate = function(x, y)
+{
+    'use strict';
+
+    this.acceleration[0] += x;
+    this.acceleration[1] += y;
+};
 
 function Game()
 {
@@ -24,7 +53,7 @@ function Game()
     this.scripts = [];
 }
 
-Game.prototype.update = function()
+Game.prototype.update = function(dt)
 {
     'use strict';
 
@@ -39,6 +68,15 @@ Game.prototype.update = function()
                 return false;
             }
       });
+
+    //Update
+
+    var i;
+
+    for(i = 0; i < this.actors.length; i++)
+    {
+        this.actors[i].update(dt);
+    }
 };
 
 Game.prototype.runScripts = function()
@@ -126,7 +164,7 @@ Game.prototype.checkCollisions = function(actor, type, direction)
 {
     'use strict';
 
-    if(actor == null)
+    if(actor === null)
     {
         return false;
     }
