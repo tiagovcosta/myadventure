@@ -9,10 +9,12 @@
     <script src="gl-matrix/mat4.js"></script>
     <script src="jquery-2.1.1.min.js"></script>
     <script src="angular.min.js"></script>
+    <script src="Box2dWeb-2.1.a.3.js"></script>
 
     <script src="input.js"></script>
     <script src="utilities.js"></script>
     <script src="scripts.js"></script>
+    <script src="physics.js"></script>
     <script src="renderer.js"></script>
     <script src="game.js"></script>
     <script src="code.js"></script>
@@ -54,6 +56,10 @@
     <!-- GAME CUSTOMIZATION /-->
     <!--/////////////////////-->
 
+    <p>
+        RUNNING: <input type="checkbox"
+                        data-ng-model="running">
+    </p>
     <p>Background color: <input type="color"
                                 data-ng-model="backgroundColor"></p>
 
@@ -83,8 +89,10 @@
                          data-ng-model="selectedColor"></p>
         <p>Script: <select data-ng-model="selectedActor.script"
                            data-ng-options="script.name for script in scripts"></select></p>
-
-        <p> Colliding: {{game.checkCollisions(selectedActor, null, "top")}}</p>
+        <p>Type:
+            <select data-ng-model="selectedActor.type"
+                    data-ng-options="k for (k,v) in actorTypes"></select>
+        </p>
     </div>
 
     <!--///////////////////////-->

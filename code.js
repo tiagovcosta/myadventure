@@ -1,8 +1,8 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true, bitwise: true */
 /*global $, window, document, Math, angular,
-         vec2, vec3, vec4, mat4, 
+         vec2, vec3, vec4, mat4, b2Body,
          Actor, Renderer, Game, InputManager, SpecialKeys,
-         Script, Utilities, Rule, conditions, actions*/
+         Script, Utilities, Rule, conditions, actions */
 
 var renderer;
 
@@ -37,6 +37,23 @@ module.controller("MainCtrl", function($scope)
 
     $scope.game = null;
 
+    $scope.running = false;
+
+    $scope.$watch("running", function()
+    {
+        if(game === undefined)
+        {
+            return;
+        }
+
+        game.running = $scope.running;
+
+        if(game.running)
+        {
+            game.restartPhysics();
+        }
+    });
+
     $scope.scripts = [];
     $scope.selectedScript = null;
 
@@ -62,6 +79,13 @@ module.controller("MainCtrl", function($scope)
     $scope.mouseDownOffsetX   = 0;
     $scope.mouseDownOffsetY   = 0;
     
+    $scope.actorTypes =
+    {
+        'Static': b2Body.b2_staticBody,
+        'Kinematic': b2Body.b2_kinematicBody,
+        'Dynamic': b2Body.b2_dynamicBody
+    };
+
     $scope.boxScalingActors = [new Actor(null,
                                          vec3.fromValues(0.25,0.25,1),
                                          0,
@@ -88,6 +112,8 @@ module.controller("MainCtrl", function($scope)
 
     $scope.backgroundColor = "#000";
     
+    $scope.selectedColor = "#FFF";
+
     $scope.$watch("backgroundColor", function()
     {
         if(renderer === undefined)
@@ -99,9 +125,7 @@ module.controller("MainCtrl", function($scope)
 
         renderer.gl.clearColor(color.r/255, color.g/255, color.b/255, 1);
     });
-    
-    $scope.selectedColor = "#FFF";
-    
+
     $scope.$watch("selectedColor", function()
     {
         if($scope.selectedActor === null)
@@ -391,7 +415,7 @@ function init()
     var actor1 = game.addActor("actor1", vec3.fromValues(10,10,-4),
                            vec3.fromValues(5,5,5),
                            0,
-                           vec4.fromValues(0.0,0.5,0.8,1));
+                           vec4.fromValues(0.0,0.5,0.8,1), b2Body.b2_dynamicBody);
 
     var script = game.newScript();
     script.rules.push(new Rule());
@@ -401,6 +425,8 @@ function init()
 
     actor1.script = script;
     
+    game.restartPhysics();
+
     //Init game on angularjs
     angular.element("body").scope().game    = game;
     angular.element("body").scope().scripts = game.scripts;

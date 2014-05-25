@@ -132,31 +132,46 @@ var moveSnippet = new Snippet("Move", function(actor, args)
 }, [new ArgumentDesc("distanceX", "number", 0),
     new ArgumentDesc("distanceY", "number", 0)]);
 
-var accelarateSnippet = new Snippet("Accelarate", function(actor, args)
+var forceSnippet = new Snippet("Apply Force", function(actor, args)
 {
     'use strict';
-    actor.accelarate(args.accelarateX,args.accelarateY);
+    actor.body.ApplyForce(new b2Vec2(args.accelarateX,
+                                     args.accelarateY),
+                          actor.body.GetWorldCenter());
 }, [new ArgumentDesc("accelarateX", "number", 0),
     new ArgumentDesc("accelarateY", "number", 0)]);
 
 var velocitySnippet = new Snippet("Set velocity", function(actor, args)
 {
     'use strict';
-    actor.velocity[0] = args.velocityX;
-    actor.velocity[1] = args.velocityY;
+    actor.body.SetAwake(true);
+    actor.body.SetLinearVelocity(new b2Vec2(args.velocityX,
+                                            args.velocityY));
 }, [new ArgumentDesc("velocityX", "number", 0),
     new ArgumentDesc("velocityY", "number", 0)]);
 
 var velocityXSnippet = new Snippet("Set X velocity", function(actor, args)
 {
     'use strict';
-    actor.velocity[0] = args.velocityX;
+    actor.body.SetAwake(true);
+
+    var vec = new b2Vec2(args.velocityX,
+                         actor.body.GetLinearVelocity().y);
+
+    actor.body.SetLinearVelocity(vec);
+
 }, [new ArgumentDesc("velocityX", "number", 0)]);
 
 var velocityYSnippet = new Snippet("Set Y velocity", function(actor, args)
 {
     'use strict';
-    actor.velocity[1] = args.velocityY;
+    actor.body.SetAwake(true);
+
+    var vec = new b2Vec2(actor.body.GetLinearVelocity().x,
+                         args.velocityY);
+
+    actor.body.SetLinearVelocity(vec);
+
 }, [new ArgumentDesc("velocityY", "number", 0)]);
 
 //////////////////////////////////////////////////////////////////
@@ -172,7 +187,7 @@ var conditions =
 var actions =
     [
         moveSnippet,
-        accelarateSnippet,
+        forceSnippet,
         velocitySnippet,
         velocityXSnippet,
         velocityYSnippet

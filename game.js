@@ -1,56 +1,31 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true continue: true */
 /*global vec2, vec3, vec4,
-         Actor, Script*/
+         Actor, Script, Physics*/
 
-function DynamicActor(name, position, scale, rotation, color)
+function DynamicActor(name, position, scale, rotation, color, type)
 {
     'use strict';
 
     Actor.call(this, position, scale, rotation, color);
 
     this.name   = name;
-    this.type   = null;
+    this.type   = type;
     this.script = null;
-
-    this.velocity = vec2.create();
-    this.acceleration = vec2.create();
+    this.body   = null;
 }
 
 DynamicActor.prototype = Object.create(Actor.prototype);
 DynamicActor.prototype.constructor = DynamicActor;
 
-DynamicActor.prototype.update = function(dt)
-{
-    'use strict';
-
-    var dt_sq = Math.pow(dt, 2);
-
-    this.position[0] = this.position[0] + this.velocity[0] * dt + 0.5 * this.acceleration[0] * dt_sq;
-    this.position[1] = this.position[1] + this.velocity[1] * dt + 0.5 * this.acceleration[1] * dt_sq;
-
-    this.velocity[0] += this.acceleration[0] * dt;
-    this.velocity[1] += this.acceleration[1] * dt;
-
-    this.acceleration[0] = 0;
-    this.acceleration[1] = 0;
-
-    this.updateWorld();
-};
-
-DynamicActor.prototype.accelarate = function(x, y)
-{
-    'use strict';
-
-    this.acceleration[0] += x;
-    this.acceleration[1] += y;
-};
-
 function Game()
 {
     'use strict';
 
-    this.actors = [];
+    this.physics = null;
+    this.actors  = [];
     this.scripts = [];
+
+    this.running = false;
 }
 
 Game.prototype.update = function(dt)
@@ -71,11 +46,27 @@ Game.prototype.update = function(dt)
 
     //Update
 
+    if(!this.running)
+    {
+        return;
+    }
+
+    this.physics.world.Step(dt, //frame-rate
+                            10,     //velocity iterations
+                            10);    //position iterations
+
+    this.physics.world.ClearForces();
+
     var i;
 
     for(i = 0; i < this.actors.length; i++)
     {
-        this.actors[i].update(dt);
+        var actor = this.actors[i];
+
+        actor.position[0] = actor.body.GetPosition().x;
+        actor.position[1] = actor.body.GetPosition().y;
+        actor.rotation    = actor.body.GetAngle();
+        actor.updateWorld();
     }
 };
 
@@ -134,13 +125,13 @@ Game.prototype.runScripts = function()
     }
 };
 
-Game.prototype.addActor = function(name, position, scale, rotation, color)
+Game.prototype.addActor = function(name, position, scale, rotation, color, type)
 {
     'use strict';
 
     var x = new DynamicActor(name, position,
                              scale, rotation,
-                             color);
+                             color, type);
 
     x.updateWorld();
 
@@ -160,52 +151,22 @@ Game.prototype.newScript = function()
     return x;
 };
 
-Game.prototype.checkCollisions = function(actor, type, direction)
+Game.prototype.restartPhysics = function()
 {
     'use strict';
 
-    if(actor === null)
-    {
-        return false;
-    }
+    this.physics = new Physics();
 
     var i;
 
-    var func;
-
-    //Select requested function
-    switch(direction)
-    {
-        case 'top':
-            func = Actor.prototype.collidingFromTop;
-            break;
-        case 'bottom':
-            func = Actor.prototype.collidingFromBottom;
-            break;
-        case 'left':
-            func = Actor.prototype.collidingFromLeft;
-            break;
-        case 'right':
-            func = Actor.prototype.collidingFromRight;
-            break;
-        default:
-            func = Actor.prototype.colliding;
-    }
-
     for(i = 0; i < this.actors.length; i++)
     {
-        var otherActor = this.actors[i];
+        var actor = this.actors[i];
 
-        if(actor === otherActor || otherActor.type !== type)
-        {
-            continue;
-        }
-
-        if(func.call(actor, otherActor))
-        {
-            return true;
-        }
+        actor.body = this.physics.createBox(actor.position[0],
+                                            actor.position[1],
+                                            actor.scale[0]/2,
+                                            actor.scale[1]/2,
+                                            actor.type);
     }
-
-    return false;
 };

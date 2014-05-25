@@ -1,23 +1,6 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true */
 /*global Float32Array, vec2, vec3, mat4 */
 
-function AABB(min, max)
-{
-    'use strict';
-    this.min = min;
-    this.max = max;
-}
-
-AABB.prototype.overlapping = function(otherAABB)
-{
-    'use strict';
-
-    return !( otherAABB.min[0] > this.max[0] ||
-              otherAABB.max[0] < this.min[0] ||
-              otherAABB.min[1] < this.max[1] ||
-              otherAABB.max[1] > this.min[1]);
-};
-
 function Actor(position, scale, rotation, color)
 {
     'use strict';
@@ -27,8 +10,6 @@ function Actor(position, scale, rotation, color)
     this.color    = color;
 
     this.worldMatrix = mat4.create();
-
-    this.aabb = new AABB();
 }
 
 Actor.prototype.updateWorld = function()
@@ -47,52 +28,6 @@ Actor.prototype.updateWorld = function()
     this.worldMatrix[12] = this.position[0];
     this.worldMatrix[13] = this.position[1];
     this.worldMatrix[14] = this.position[2];
-
-    var topLeft = vec2.fromValues(-0.5, 0.5);
-    var bottomRight = vec2.fromValues(0.5, -0.5);
-
-    vec2.transformMat4(topLeft, topLeft, this.worldMatrix);
-    vec2.transformMat4(bottomRight, bottomRight, this.worldMatrix);
-
-    this.aabb.min = topLeft;
-    this.aabb.max = bottomRight;
-};
-
-Actor.prototype.collidingFromLeft = function(otherActor)
-{
-    'use strict';
-
-    return this.aabb.overlapping(otherActor.aabb) && this.aabb.max[0] >= otherActor.aabb.min[0];
-};
-
-Actor.prototype.collidingFromRight = function(otherActor)
-{
-    'use strict';
-
-    return this.aabb.overlapping(otherActor.aabb) && this.aabb.min[0] <= otherActor.aabb.max[0];
-};
-
-Actor.prototype.collidingFromTop = function(otherActor)
-{
-    'use strict';
-
-    return this.aabb.overlapping(otherActor.aabb) &&
-           this.aabb.max[1] <= otherActor.aabb.min[1] &&
-           this.aabb.min[1] >= otherActor.aabb.min[1];
-};
-
-Actor.prototype.collidingFromBottom = function(otherActor)
-{
-    'use strict';
-
-    return this.aabb.overlapping(otherActor.aabb) && this.aabb.min[1] >= otherActor.aabb.max[1];
-};
-
-Actor.prototype.colliding = function(otherActor)
-{
-    'use strict';
-
-    return this.aabb.overlapping(otherActor.aabb);
 };
 
 ////////////////////////////////////////////////////////////////////
