@@ -147,6 +147,18 @@ var velocitySnippet = new Snippet("Set velocity", function(actor, args)
 }, [new ArgumentDesc("velocityX", "number", 0),
     new ArgumentDesc("velocityY", "number", 0)]);
 
+var velocityXSnippet = new Snippet("Set X velocity", function(actor, args)
+{
+    'use strict';
+    actor.velocity[0] = args.velocityX;
+}, [new ArgumentDesc("velocityX", "number", 0)]);
+
+var velocityYSnippet = new Snippet("Set Y velocity", function(actor, args)
+{
+    'use strict';
+    actor.velocity[1] = args.velocityY;
+}, [new ArgumentDesc("velocityY", "number", 0)]);
+
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
@@ -161,5 +173,7 @@ var actions =
     [
         moveSnippet,
         accelarateSnippet,
-        velocitySnippet
+        velocitySnippet,
+        velocityXSnippet,
+        velocityYSnippet
     ];
