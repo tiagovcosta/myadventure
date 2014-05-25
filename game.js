@@ -1,6 +1,6 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true continue: true */
 /*global vec2, vec3, vec4,
-         Actor, Script, Physics*/
+         Actor, Script, Physics, Box2D*/
 
 function DynamicActor(name, position, scale, rotation, color, type)
 {
@@ -8,14 +8,33 @@ function DynamicActor(name, position, scale, rotation, color, type)
 
     Actor.call(this, position, scale, rotation, color);
 
-    this.name   = name;
-    this.type   = type;
-    this.script = null;
-    this.body   = null;
+    this.name       = name;
+    this.type       = type;
+    this.actorClass = "";
+    this.script     = null;
+    this.body       = null;
+
+    this.collisions = [];
 }
 
 DynamicActor.prototype = Object.create(Actor.prototype);
 DynamicActor.prototype.constructor = DynamicActor;
+
+DynamicActor.prototype.checkCollisions = function(actorClass,
+                                                   direction)
+{
+    'use strict';
+
+    var i = 0;
+
+    for(i = 0; i < this.collisions.length; i++)
+    {
+        if(this.collisions[i].actorClass === actorClass)
+        {
+            return true;
+        }
+    }
+};
 
 function Game()
 {
@@ -51,13 +70,24 @@ Game.prototype.update = function(dt)
         return;
     }
 
+    this.runScripts();
+
+    var i;
+
+    //Clear collisions
+
+    for(i = 0; i < this.actors.length; i++)
+    {
+        this.actors[i].collisions = [];
+    }
+
     this.physics.world.Step(dt, //frame-rate
                             10,     //velocity iterations
                             10);    //position iterations
 
     this.physics.world.ClearForces();
 
-    var i;
+    //Update positions
 
     for(i = 0; i < this.actors.length; i++)
     {
@@ -125,11 +155,12 @@ Game.prototype.runScripts = function()
     }
 };
 
-Game.prototype.addActor = function(name, position, scale, rotation, color, type)
+Game.prototype.addActor = function(position, scale, rotation, color, type)
 {
     'use strict';
 
-    var x = new DynamicActor(name, position,
+    var x = new DynamicActor("actor"+this.actors.length,
+                             position,
                              scale, rotation,
                              color, type);
 
@@ -151,11 +182,25 @@ Game.prototype.newScript = function()
     return x;
 };
 
+var contactListener = new Box2D.Dynamics.b2ContactListener();
+
+contactListener.BeginContact = function(contact, manifold)
+{
+   'use strict';
+
+    var a = contact.GetFixtureA().GetBody().GetUserData();
+    var b = contact.GetFixtureB().GetBody().GetUserData();
+
+    a.collisions.push(b);
+    b.collisions.push(a);
+};
+
 Game.prototype.restartPhysics = function()
 {
     'use strict';
 
     this.physics = new Physics();
+    this.physics.world.SetContactListener(contactListener);
 
     var i;
 
@@ -168,5 +213,7 @@ Game.prototype.restartPhysics = function()
                                             actor.scale[0]/2,
                                             actor.scale[1]/2,
                                             actor.type);
+
+        actor.body.SetUserData(actor);
     }
 };

@@ -1,5 +1,5 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true */
-/*global inputManager, SpecialKeys, game */
+/*global inputManager, SpecialKeys, game, b2Vec2 */
 
 function ArgumentDesc(name, type, deft, selectOptions)
 {
@@ -118,8 +118,9 @@ var collisionSnippet = new Snippet("Collision", function(actor, args)
 {
      'use strict';
 
-     return game.checkCollisions(actor, null, args.direction);
-}, [new ArgumentDesc("direction", "select", null, directions)]);
+     return actor.checkCollisions(args.actorClass, args.direction);
+}, [new ArgumentDesc("actorClass", "text", ""),
+    new ArgumentDesc("direction", "select", null, directions)]);
 
 //ACTIONS
 

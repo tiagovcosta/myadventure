@@ -72,11 +72,11 @@
 
     <p>
         <input type="button" value="New Actor"
-               onclick="game.addActor('actor',
-                        vec3.fromValues(10,10,-4),
+               onclick="game.addActor(vec3.fromValues(10,10,-4),
                         vec3.fromValues(5,5,1),
                         0,
-                        vec4.fromValues(0.0,0.5,0.8,1))">
+                        vec4.fromValues(0.0,0.5,0.8,1),
+                        b2Body.b2_dynamicBody)">
     </p>
 
     <p><span id="helper_span"></span></p>
@@ -93,6 +93,8 @@
             <select data-ng-model="selectedActor.type"
                     data-ng-options="k for (k,v) in actorTypes"></select>
         </p>
+        <p>Class: <input type="text"
+                         data-ng-model="selectedActor.actorClass"></p>
     </div>
 
     <!--///////////////////////-->
@@ -124,12 +126,12 @@
                 {{condition.snippet.name}} ->
                 <span data-ng-repeat="argument in condition.snippet.argsDescs">{{argument.name}} =
                     <span data-ng-switch="argument.type">
-                        <span data-ng-switch-when="char">
-                            <input type="text" data-ng-model="condition.args[argument.name]">
-                        </span>
                         <span data-ng-switch-when="select">
                             <select data-ng-model="condition.args[argument.name]"
                                     data-ng-options="key for (key, value) in argument.selectOptions"></select>
+                        </span>
+                        <span data-ng-switch-when="text">
+                            <input type="text" data-ng-model="condition.args[argument.name]">
                         </span>
                         <span data-ng-switch-when="number">
                             <input type="number" data-ng-model="condition.args[argument.name]">
@@ -149,7 +151,11 @@
                  {{action.snippet.name}} ->
                 <span data-ng-repeat="argument in action.snippet.argsDescs">{{argument.name}} =
                     <span data-ng-switch="argument.type">
-                        <span data-ng-switch-when="char">
+                        <span data-ng-switch-when="select">
+                            <select data-ng-model="action.args[argument.name]"
+                                    data-ng-options="key for (key, value) in argument.selectOptions"></select>
+                        </span>
+                        <span data-ng-switch-when="text">
                             <input type="text" data-ng-model="action.args[argument.name]">
                         </span>
                         <span data-ng-switch-when="number">
