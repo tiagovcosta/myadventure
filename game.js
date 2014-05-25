@@ -6,10 +6,10 @@ function DynamicActor(name, position, scale, rotation, color)
 {
     'use strict';
 
-    this.name = name;
-
     Actor.call(this, position, scale, rotation, color);
 
+    this.name   = name;
+    this.type   = null;
     this.script = null;
 }
 
@@ -71,6 +71,12 @@ Game.prototype.runScripts = function()
 
                 if(!condition.snippet.func(actor, condition.args))
                 {
+                    if(!condition.args.not)
+                    {
+                        flag = false;
+                    }
+                } else if(condition.args.not)
+                {
                     flag = false;
                 }
             }
@@ -114,4 +120,54 @@ Game.prototype.newScript = function()
     this.scripts.push(x);
 
     return x;
+};
+
+Game.prototype.checkCollisions = function(actor, type, direction)
+{
+    'use strict';
+
+    if(actor == null)
+    {
+        return false;
+    }
+
+    var i;
+
+    var func;
+
+    //Select requested function
+    switch(direction)
+    {
+        case 'top':
+            func = Actor.prototype.collidingFromTop;
+            break;
+        case 'bottom':
+            func = Actor.prototype.collidingFromBottom;
+            break;
+        case 'left':
+            func = Actor.prototype.collidingFromLeft;
+            break;
+        case 'right':
+            func = Actor.prototype.collidingFromRight;
+            break;
+        default:
+            func = Actor.prototype.colliding;
+    }
+
+    for(i = 0; i < this.actors.length; i++)
+    {
+        var otherActor = this.actors[i];
+
+        if(actor === otherActor || otherActor.type !== type)
+        {
+            continue;
+        }
+
+        if(func.call(actor, otherActor))
+        {
+            return true;
+        }
+    }
+
+    return false;
 };

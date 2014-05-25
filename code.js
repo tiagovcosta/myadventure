@@ -2,7 +2,7 @@
 /*global $, window, document, Math, angular,
          vec2, vec3, vec4, mat4, 
          Actor, Renderer, Game, InputManager, SpecialKeys,
-         Script, Utilities, conditions, actions*/
+         Script, Utilities, Rule, conditions, actions*/
 
 var renderer;
 

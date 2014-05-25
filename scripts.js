@@ -1,13 +1,14 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true */
-/*global inputManager*/
+/*global inputManager, SpecialKeys */
 
-function ArgumentDesc(name, type, deft)
+function ArgumentDesc(name, type, deft, selectOptions)
 {
     'use strict';
 
-    this.name = name;
-    this.type = type;
-    this.deft = deft;
+    this.name          = name;
+    this.type          = type;
+    this.deft          = deft;
+    this.selectOptions = selectOptions;
 }
 
 function Snippet(name, func, argsDescs)
@@ -47,6 +48,8 @@ Rule.prototype.newCondition = function(condition)
         args[condition.argsDescs[i].name] = condition.argsDescs[i].deft;
     }
 
+    args.not = false;
+
     this.conditions.push(new SnippedInstance(condition, args));
 };
 
@@ -79,6 +82,29 @@ Script.prototype.newRule = function()
     this.rules.push(new Rule());
 };
 
+/////////////////////////////////////////////
+
+var keys =
+    {
+        'A':'A',
+        'W':'W',
+        'S':'S',
+        'D':'D',
+        'Left':SpecialKeys.LEFT,
+        'Right':SpecialKeys.RIGHT,
+        'Up':SpecialKeys.UP,
+        'Down':SpecialKeys.DOWN
+    };
+
+var directions =
+    {
+        'Any':null,
+        'Top':'top',
+        'Bottom':'bottom',
+        'Left':'left',
+        'Right':'right'
+    };
+
 //CONDITIONS
 
 var keyPressedSnippet = new Snippet("Key Pressed", function(actor, args)
@@ -86,7 +112,14 @@ var keyPressedSnippet = new Snippet("Key Pressed", function(actor, args)
      'use strict';
 
      return inputManager.keyPressed(args.key);
-}, [new ArgumentDesc("key", "char", 'B')]);
+}, [new ArgumentDesc("key", "select", SpecialKeys.RIGHT, keys)]);
+
+var collisionSnippet = new Snippet("Collision", function(actor, args)
+{
+     'use strict';
+
+     return game.checkCollisions(actor, null, args.direction);
+}, [new ArgumentDesc("direction", "select", null, directions)]);
 
 //ACTIONS
 
@@ -101,7 +134,8 @@ var moveSnippet = new Snippet("Move", function(actor, args)
 
 var conditions =
     {
-        keyPressedSnippet : keyPressedSnippet
+        keyPressedSnippet : keyPressedSnippet,
+        collisionSnippet : collisionSnippet
     };
 
 var actions =

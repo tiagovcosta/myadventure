@@ -47,34 +47,45 @@ Actor.prototype.updateWorld = function()
     this.worldMatrix[12] = this.position[0];
     this.worldMatrix[13] = this.position[1];
     this.worldMatrix[14] = this.position[2];
+
+    var topLeft = vec2.fromValues(-0.5, 0.5);
+    var bottomRight = vec2.fromValues(0.5, -0.5);
+
+    vec2.transformMat4(topLeft, topLeft, this.worldMatrix);
+    vec2.transformMat4(bottomRight, bottomRight, this.worldMatrix);
+
+    this.aabb.min = topLeft;
+    this.aabb.max = bottomRight;
 };
 
 Actor.prototype.collidingFromLeft = function(otherActor)
 {
     'use strict';
 
-    return this.aabb.overlapping(otherActor.aabb) && this.right >= otherActor.left;
+    return this.aabb.overlapping(otherActor.aabb) && this.aabb.max[0] >= otherActor.aabb.min[0];
 };
 
 Actor.prototype.collidingFromRight = function(otherActor)
 {
     'use strict';
 
-    return this.aabb.overlapping(otherActor.aabb) && this.left <= otherActor.right;
+    return this.aabb.overlapping(otherActor.aabb) && this.aabb.min[0] <= otherActor.aabb.max[0];
 };
 
 Actor.prototype.collidingFromTop = function(otherActor)
 {
     'use strict';
 
-    return this.aabb.overlapping(otherActor.aabb) && this.bottom <= otherActor.top;
+    return this.aabb.overlapping(otherActor.aabb) &&
+           this.aabb.max[1] <= otherActor.aabb.min[1] &&
+           this.aabb.min[1] >= otherActor.aabb.min[1];
 };
 
 Actor.prototype.collidingFromBottom = function(otherActor)
 {
     'use strict';
 
-    return this.aabb.overlapping(otherActor.aabb) && this.top >= otherActor.bottom;
+    return this.aabb.overlapping(otherActor.aabb) && this.aabb.min[1] >= otherActor.aabb.max[1];
 };
 
 Actor.prototype.colliding = function(otherActor)

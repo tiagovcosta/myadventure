@@ -18,11 +18,11 @@ Utilities.hexToRgb = function(hex)
         g: parseInt(result[2], 16),
         b: parseInt(result[3], 16)
     } : null;
-}
+};
 
 
 Utilities.rgbToHex = function(r, g, b)
 {
     'use strict';
     return "#" + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1);
-}
+};

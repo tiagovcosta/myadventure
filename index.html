@@ -9,9 +9,7 @@
     <script src="gl-matrix/mat4.js"></script>
     <script src="jquery-2.1.1.min.js"></script>
     <script src="angular.min.js"></script>
-    <script src="matter-0.8.0.js"></script>
-    
-    <script src="physics.js"></script>
+
     <script src="input.js"></script>
     <script src="utilities.js"></script>
     <script src="scripts.js"></script>
@@ -85,17 +83,19 @@
                          data-ng-model="selectedColor"></p>
         <p>Script: <select data-ng-model="selectedActor.script"
                            data-ng-options="script.name for script in scripts"></select></p>
+
+        <p> Colliding: {{game.checkCollisions(selectedActor, null, "top")}}</p>
     </div>
+
+    <!--///////////////////////-->
+    <!-- SCRIPT CUSTOMIZATION /-->
+    <!--///////////////////////-->
 
     <h1>Scripts:</h1>
     <div data-ng-repeat="script in scripts"
         data-ng-click="selectScript(script)">
         {{script.name}}
     </div>
-
-    <!--///////////////////////-->
-    <!-- SCRIPT CUSTOMIZATION /-->
-    <!--///////////////////////-->
 
     <p><input type="button" value="New Script"
               data-ng-click="game.newScript()"></p>
@@ -112,11 +112,16 @@
             <h3>Rule {{$index+1}}</h3>
             <h4>Conditions:</h4>
             <p data-ng-repeat="condition in rule.conditions">
+                Not <input type="checkbox" data-ng-model="condition.args.not">
                 {{condition.snippet.name}} ->
                 <span data-ng-repeat="argument in condition.snippet.argsDescs">{{argument.name}} =
                     <span data-ng-switch="argument.type">
                         <span data-ng-switch-when="char">
                             <input type="text" data-ng-model="condition.args[argument.name]">
+                        </span>
+                        <span data-ng-switch-when="select">
+                            <select data-ng-model="condition.args[argument.name]"
+                                    data-ng-options="key for (key, value) in argument.selectOptions"></select>
                         </span>
                         <span data-ng-switch-when="number">
                             <input type="number" data-ng-model="condition.args[argument.name]">
