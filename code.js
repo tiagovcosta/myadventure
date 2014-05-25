@@ -396,8 +396,8 @@ function init()
     var script = game.newScript();
     script.rules.push(new Rule());
 
-    script.rules[0].newCondition(conditions.keyPressedSnippet);
-    script.rules[0].newAction(actions.moveSnippet);
+    script.rules[0].newCondition(conditions[0]);
+    script.rules[0].newAction(actions[0]);
 
     actor1.script = script;
     

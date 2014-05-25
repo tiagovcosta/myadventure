@@ -67,8 +67,8 @@
     <p>
         <input type="button" value="New Actor"
                onclick="game.addActor('actor',
-                        vec3.fromValues(300,200,-4),
-                        vec3.fromValues(150,100,1),
+                        vec3.fromValues(10,10,-4),
+                        vec3.fromValues(5,5,1),
                         0,
                         vec4.fromValues(0.0,0.5,0.8,1))">
     </p>
@@ -132,7 +132,7 @@
 
             New Condition:
             <select data-ng-model="newCondition"
-                    data-ng-options="value.name for (key, value) in conditions"></select>
+                    data-ng-options="cond.name for cond in conditions"></select>
             <input type="button" value="Create"
                    data-ng-click="rule.newCondition(newCondition)">
 
@@ -153,7 +153,7 @@
 
             New Action:
             <select data-ng-model="newAction"
-                    data-ng-options="value.name for (key, value) in actions"></select>
+                    data-ng-options="action.name for action in actions"></select>
             <input type="button" value="Create"
                    data-ng-click="rule.newAction(newAction)">
         </div>

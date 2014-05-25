@@ -1,5 +1,5 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true */
-/*global inputManager, SpecialKeys */
+/*global inputManager, SpecialKeys, game */
 
 function ArgumentDesc(name, type, deft, selectOptions)
 {
@@ -129,16 +129,37 @@ var moveSnippet = new Snippet("Move", function(actor, args)
     actor.position[0] += args.distanceX;
     actor.position[1] += args.distanceY;
     actor.updateWorld();
-}, [new ArgumentDesc("distanceX", "number", 10),
-    new ArgumentDesc("distanceY", "number", 5)]);
+}, [new ArgumentDesc("distanceX", "number", 0),
+    new ArgumentDesc("distanceY", "number", 0)]);
+
+var accelarateSnippet = new Snippet("Accelarate", function(actor, args)
+{
+    'use strict';
+    actor.accelarate(args.accelarateX,args.accelarateY);
+}, [new ArgumentDesc("accelarateX", "number", 0),
+    new ArgumentDesc("accelarateY", "number", 0)]);
+
+var velocitySnippet = new Snippet("Set velocity", function(actor, args)
+{
+    'use strict';
+    actor.velocity[0] = args.velocityX;
+    actor.velocity[1] = args.velocityY;
+}, [new ArgumentDesc("velocityX", "number", 0),
+    new ArgumentDesc("velocityY", "number", 0)]);
+
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
 
 var conditions =
-    {
-        keyPressedSnippet : keyPressedSnippet,
-        collisionSnippet : collisionSnippet
-    };
+    [
+        keyPressedSnippet,
+        collisionSnippet
+    ];
 
 var actions =
-    {
-        moveSnippet : moveSnippet
-    };
+    [
+        moveSnippet,
+        accelarateSnippet,
+        velocitySnippet
+    ];
