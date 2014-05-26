@@ -175,10 +175,9 @@
 
                     <!-- SCRIPTS -->
                     <div class="tab-pane fade" id="scripts">
-                        <div data-ng-repeat="script in scripts"
-                             data-ng-click="selectScript(script)">
-                            {{script.name}}
-                        </div>
+                        <select data-ng-options="script.name for script in scripts"
+                                data-ng-model="selectedScript">
+                        </select>
 
                         <div class="form-group">
                             <input type="button" value="New Script"

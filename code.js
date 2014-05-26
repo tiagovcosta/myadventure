@@ -82,11 +82,6 @@ module.controller("MainCtrl", function($scope)
     $scope.scripts = [];
     $scope.selectedScript = null;
 
-    $scope.selectScript = function(script)
-    {
-        $scope.selectedScript = script;
-    };
-
     $scope.conditions = conditions;
     $scope.actions    = actions;
 
