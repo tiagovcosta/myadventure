@@ -170,20 +170,30 @@
                     <!-- SCRIPTS -->
                     <div class="tab-pane fade" id="scripts">
                         <div data-ng-repeat="script in scripts"
-                            data-ng-click="selectScript(script)">
+                             data-ng-click="selectScript(script)">
                             {{script.name}}
                         </div>
 
-                        <p><input type="button" value="New Script"
-                                  data-ng-click="game.newScript()"></p>
+                        <div class="form-group">
+                            <input type="button" value="New Script"
+                                   data-ng-click="game.newScript()">
+                        </div>
 
-                        <div data-ng-if="selectedScript !== null">
-                            <h2>Script Details:</h2>
-                            Name: <input type="text" data-ng-model="selectedScript.name">
-                            <p>Number of Rules: {{selectedScript.rules.length}}</p>
+                        <div data-ng-if="selectedScript !== null"
+                             class="form-group">
+                            <h3>Script Details:</h3>
+                            <div class="form-group">
+                                <label>Name:</label>
+                                <br>
+                                <input type="text" data-ng-model="selectedScript.name">
+                                <br>
+                                <label>Number of Rules: {{selectedScript.rules.length}}</label>
+                            </div>
 
-                            <p><input type="button" value="New Rule"
-                                  data-ng-click="selectedScript.newRule()"></p>
+                            <div class="form-group">
+                                <input type="button" value="New Rule"
+                                       data-ng-click="selectedScript.newRule()">
+                            </div>
 
                             <div data-ng-repeat="rule in selectedScript.rules">
                                 <h3>Rule {{$index+1}}</h3>
