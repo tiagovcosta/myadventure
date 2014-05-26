@@ -213,28 +213,35 @@
 
                             <!-- rules list -->
                             <h3 class="page-header">Rules List</h3>
+                            <!-- scrool spy -->
                             <div style="height:300px; overflow: auto;">
                                 <div data-ng-repeat="rule in selectedScript.rules">
-                                    <h4>Rule {{$index+1}}</h4>
-                                    <h3>Conditions:</h3>
-                                    <p data-ng-repeat="condition in rule.conditions">
-                                        Not <input type="checkbox" data-ng-model="condition.args.not">
-                                        {{condition.snippet.name}} ->
-                                        <span data-ng-repeat="argument in condition.snippet.argsDescs">{{argument.name}} =
-                                            <span data-ng-switch="argument.type">
-                                                <span data-ng-switch-when="select">
-                                                    <select data-ng-model="condition.args[argument.name]"
-                                                            data-ng-options="key for (key, value) in argument.selectOptions"></select>
-                                                </span>
-                                                <span data-ng-switch-when="text">
-                                                    <input type="text" data-ng-model="condition.args[argument.name]">
-                                                </span>
-                                                <span data-ng-switch-when="number">
-                                                    <input type="number" data-ng-model="condition.args[argument.name]">
+                                    <h4><strong>Rule {{$index+1}}</strong></h4>
+                                    <h4>Conditions</h4>
+                                    <span data-ng-repeat="condition in rule.conditions">
+                                        <div class="form-group">
+                                            <select data-ng-model="condition.args.not"
+                                                    data-ng-options="key for (key, value) in ifnot">
+                                            </select>
+                                            <label>{{condition.snippet.name}}</label>
+                                            <span data-ng-repeat="argument in condition.snippet.argsDescs">
+                                                {{argument.name}}
+                                                <span data-ng-switch="argument.type">
+                                                    <span data-ng-switch-when="select">
+                                                        <select data-ng-model="condition.args[argument.name]"
+                                                                data-ng-options="key for (key, value) in argument.selectOptions">
+                                                        </select>
+                                                    </span>
+                                                    <span data-ng-switch-when="text">
+                                                        <input type="text" data-ng-model="condition.args[argument.name]">
+                                                    </span>
+                                                    <span data-ng-switch-when="number">
+                                                        <input type="number" data-ng-model="condition.args[argument.name]">
+                                                    </span>
                                                 </span>
                                             </span>
-                                        </span>
-                                    </p>
+                                        </div>
+                                    </span>
 
                                     New Condition:
                                     <select data-ng-model="newCondition"
@@ -267,8 +274,9 @@
                                     <input type="button" value="Create"
                                            data-ng-click="rule.newAction(newAction)">
                                 </div>
+                                <!-- /rules list -->
                             </div>
-                            <!-- /rules list -->
+                            <!-- /scrool spy -->
                         </div>
                     </div>
                     <!-- /SCRIPTS -->

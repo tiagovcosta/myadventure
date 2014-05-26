@@ -99,6 +99,12 @@ module.controller("MainCtrl", function($scope)
     $scope.mouseDownOffsetX   = 0;
     $scope.mouseDownOffsetY   = 0;
     
+    $scope.ifnot =
+    {
+        "If": false,
+        "If not": true
+    };
+
     $scope.actorTypes =
     {
         'Static': b2Body.b2_staticBody,
