@@ -214,65 +214,105 @@
                             <!-- rules list -->
                             <h3 class="page-header">Rules List</h3>
                             <!-- scrool spy -->
-                            <div style="height:300px; overflow: auto;">
+                            <div style="height:320px; overflow: auto;">
                                 <div data-ng-repeat="rule in selectedScript.rules">
                                     <h4><strong>Rule {{$index+1}}</strong></h4>
-                                    <h4>Conditions</h4>
-                                    <span data-ng-repeat="condition in rule.conditions">
-                                        <div class="form-group">
-                                            <select data-ng-model="condition.args.not"
-                                                    data-ng-options="key for (key, value) in ifnot">
-                                            </select>
-                                            <label>{{condition.snippet.name}}</label>
-                                            <span data-ng-repeat="argument in condition.snippet.argsDescs">
-                                                {{argument.name}}
-                                                <span data-ng-switch="argument.type">
-                                                    <span data-ng-switch-when="select">
-                                                        <select data-ng-model="condition.args[argument.name]"
-                                                                data-ng-options="key for (key, value) in argument.selectOptions">
-                                                        </select>
-                                                    </span>
-                                                    <span data-ng-switch-when="text">
-                                                        <input type="text" data-ng-model="condition.args[argument.name]">
-                                                    </span>
-                                                    <span data-ng-switch-when="number">
-                                                        <input type="number" data-ng-model="condition.args[argument.name]">
+                                    <div class="form-group">
+                                        <h4>Conditions</h4>
+                                        <div data-ng-repeat="condition in rule.conditions">
+                                            <div class="form-group">
+                                                <select data-ng-model="condition.args.not"
+                                                        data-ng-options="key for (key, value) in ifnot"
+                                                        class="form-control">
+                                                </select>
+                                                <label>{{condition.snippet.name}}</label>
+                                                <br>
+                                                <span data-ng-repeat="argument in condition.snippet.argsDescs">
+                                                    <label>{{argument.name}}:</label>
+                                                    <br>
+                                                    <span data-ng-switch="argument.type">
+                                                        <span data-ng-switch-when="select">
+                                                            <select data-ng-model="condition.args[argument.name]"
+                                                                    data-ng-options="key for (key, value) in argument.selectOptions"
+                                                                    class="form-control">
+                                                            </select>
+                                                        </span>
+                                                        <span data-ng-switch-when="text">
+                                                            <input type="text"
+                                                                   data-ng-model="condition.args[argument.name]"
+                                                                   class="form-control">
+                                                        </span>
+                                                        <span data-ng-switch-when="number">
+                                                            <input type="number"
+                                                                   data-ng-model="condition.args[argument.name]"
+                                                                   class="form-control">
+                                                        </span>
                                                     </span>
                                                 </span>
-                                            </span>
+                                            </div>
                                         </div>
-                                    </span>
-
-                                    New Condition:
-                                    <select data-ng-model="newCondition"
-                                            data-ng-options="cond.name for cond in conditions"></select>
-                                    <input type="button" value="Create"
-                                           data-ng-click="rule.newCondition(newCondition)">
-
-                                    <h4>Actions:</h4>
-                                    <p data-ng-repeat="action in rule.actions">
-                                         {{action.snippet.name}} ->
-                                        <span data-ng-repeat="argument in action.snippet.argsDescs">{{argument.name}} =
-                                            <span data-ng-switch="argument.type">
-                                                <span data-ng-switch-when="select">
-                                                    <select data-ng-model="action.args[argument.name]"
-                                                            data-ng-options="key for (key, value) in argument.selectOptions"></select>
-                                                </span>
-                                                <span data-ng-switch-when="text">
-                                                    <input type="text" data-ng-model="action.args[argument.name]">
-                                                </span>
-                                                <span data-ng-switch-when="number">
-                                                    <input type="number" data-ng-model="action.args[argument.name]">
-                                                </span>
-                                            </span>
-                                        </span>
-                                    </p>
-
-                                    New Action:
-                                    <select data-ng-model="newAction"
-                                            data-ng-options="action.name for action in actions"></select>
-                                    <input type="button" value="Create"
-                                           data-ng-click="rule.newAction(newAction)">
+                                        <!-- new condition -->
+                                        <div class="form-group">
+                                            <label><strong>New Condition:</strong></label>
+                                            <br>
+                                            <select data-ng-model="newCondition"
+                                                    data-ng-options="cond.name for cond in conditions"
+                                                    class="form-control">
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="button" value="Create"
+                                                   data-ng-click="rule.newCondition(newCondition)"
+                                                   class="btn btn-default btn-sm">
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="form-group">
+                                        <h4>Actions</h4>
+                                        <div data-ng-repeat="action in rule.actions">
+                                            <div class="form-group">
+                                                <label><strong>{{action.snippet.name}}</strong></label>
+                                                <br>
+                                                <div data-ng-repeat="argument in action.snippet.argsDescs">
+                                                    <div class="form-group">
+                                                        <label>{{argument.name}}</label>
+                                                        <br>
+                                                        <span data-ng-switch="argument.type">
+                                                            <span data-ng-switch-when="select">
+                                                                <select data-ng-model="action.args[argument.name]"
+                                                                        data-ng-options="key for (key, value) in argument.selectOptions"
+                                                                        class="form-control">
+                                                                </select>
+                                                            </span>
+                                                            <span data-ng-switch-when="text">
+                                                                <input type="text" data-ng-model="action.args[argument.name]"
+                                                                       class="form-control">
+                                                            </span>
+                                                            <span data-ng-switch-when="number">
+                                                                <input type="number" data-ng-model="action.args[argument.name]"
+                                                                       class="form-control">
+                                                            </span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- new action -->
+                                    <div class="form-group">
+                                        <label><strong>New Action:</strong></label>
+                                        <br>
+                                        <select data-ng-model="newAction"
+                                                data-ng-options="action.name for action in actions"
+                                                class="form-control">
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="button" value="Create"
+                                               data-ng-click="rule.newCondition(newAction)"
+                                               class="btn btn-default btn-sm">
+                                    </div>
+                                    <br>
                                 </div>
                                 <!-- /rules list -->
                             </div>
