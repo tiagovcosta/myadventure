@@ -251,8 +251,11 @@ Game.prototype.clone = function()
         x.script     = actor.script;
     }
 
-    var playerIndex = this.actors.indexOf(this.player);
-    clone.player = clone.actors[playerIndex];
+    if(this.player !== null)
+    {
+        var playerIndex = this.actors.indexOf(this.player);
+        clone.player = clone.actors[playerIndex];
+    }
 
     return clone;
 };

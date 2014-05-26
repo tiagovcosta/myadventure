@@ -20,7 +20,7 @@ function Snippet(name, func, argsDescs)
     this.argsDescs = argsDescs;
 }
 
-function SnippedInstance(snippet, args)
+function SnippetInstance(snippet, args)
 {
     'use strict';
 
@@ -50,7 +50,11 @@ Rule.prototype.newCondition = function(condition)
 
     args.not = false;
 
-    this.conditions.push(new SnippedInstance(condition, args));
+    var x = new SnippetInstance(condition, args);
+
+    this.conditions.push(x);
+
+    return x;
 };
 
 Rule.prototype.newAction = function(action)
@@ -66,7 +70,11 @@ Rule.prototype.newAction = function(action)
         args[action.argsDescs[i].name] = action.argsDescs[i].deft;
     }
 
-    this.actions.push(new SnippedInstance(action, args));
+    var x = new SnippetInstance(action, args);
+
+    this.actions.push(x);
+
+    return x;
 };
 
 function Script(name)
@@ -79,7 +87,11 @@ function Script(name)
 Script.prototype.newRule = function()
 {
     'use strict';
-    this.rules.push(new Rule());
+
+    var x = new Rule();
+    this.rules.push(x);
+
+    return x;
 };
 
 /////////////////////////////////////////////
@@ -136,11 +148,11 @@ var moveSnippet = new Snippet("Move", function(actor, args)
 var forceSnippet = new Snippet("Apply Force", function(actor, args)
 {
     'use strict';
-    actor.body.ApplyForce(new b2Vec2(args.accelarateX,
-                                     args.accelarateY),
+    actor.body.ApplyForce(new b2Vec2(args.intensityX,
+                                     args.intensityY),
                           actor.body.GetWorldCenter());
-}, [new ArgumentDesc("accelarateX", "number", 0),
-    new ArgumentDesc("accelarateY", "number", 0)]);
+}, [new ArgumentDesc("intensityX", "number", 0),
+    new ArgumentDesc("intensityY", "number", 0)]);
 
 var velocitySnippet = new Snippet("Set velocity", function(actor, args)
 {

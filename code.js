@@ -66,9 +66,13 @@ module.controller("MainCtrl", function($scope)
                                        $scope.cameraPos[1],
                                        0);
 
-            //Calculate selected actor on clone game
-            var i = $scope.game.actors.indexOf($scope.selectedActor);
-            $scope.selectedActor = $scope.gameClone.actors[i];
+            if($scope.selectedActor !== null)
+            {
+                //Calculate selected actor on clone game
+                var i =
+                    $scope.game.actors.indexOf($scope.selectedActor);
+                $scope.selectedActor = $scope.gameClone.actors[i];
+            }
 
             $scope.game = $scope.gameClone;
             game = $scope.game;
@@ -438,6 +442,22 @@ function init()
                                b2Body.b2_staticBody);
     
     game.restartPhysics();
+
+    var playerScript = game.newScript();
+    playerScript.name = "Player_script";
+
+    var moveLeftRule = playerScript.newRule();
+    moveLeftRule.newCondition(keyPressedSnippet).args.key = SpecialKeys.LEFT;
+    moveLeftRule.newAction(forceSnippet).args.intensityX = -750;
+
+    var moveRightRule = playerScript.newRule();
+    moveRightRule.newCondition(keyPressedSnippet).args.key = SpecialKeys.RIGHT;
+    moveRightRule.newAction(forceSnippet).args.intensityX = 750;
+
+    var jumpRule = playerScript.newRule();
+    jumpRule.newCondition(keyPressedSnippet).args.key = SpecialKeys.UP;
+    jumpRule.newAction(forceSnippet).args.intensityY = 750;
+
 
     //Init game on angularjs
     angular.element("body").scope().game    = game;
