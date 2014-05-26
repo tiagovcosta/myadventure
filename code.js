@@ -426,6 +426,12 @@ function init()
 {
     'use strict';
     
+    $(".colorpick").colorpicker().on('changeColor', function(ev)
+                                     {
+                                         var color = Utilities.hexToRgb(ev.color.toHex());
+                                         renderer.gl.clearColor(color.r/255, color.g/255, color.b/255, 1);
+                                     });
+
     canvas       = document.getElementById("canvas");
     
     inputManager = new InputManager(canvas);
