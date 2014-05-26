@@ -134,36 +134,6 @@ module.controller("MainCtrl", function($scope)
                                      vec3.fromValues(0.25,0.25,1),
                                      0,
                                      vec4.fromValues(1,1,1,1));
-
-    $scope.backgroundColor = "#000";
-    
-    $scope.selectedColor = "#FFF";
-
-    $scope.$watch("backgroundColor", function()
-    {
-        if(renderer === undefined)
-        {
-            return;
-        }
-
-        var color = Utilities.hexToRgb($scope.backgroundColor);
-
-        renderer.gl.clearColor(color.r/255, color.g/255, color.b/255, 1);
-    });
-
-    $scope.$watch("selectedColor", function()
-    {
-        if($scope.selectedActor === null)
-        {
-            return;
-        }
-
-        var color = Utilities.hexToRgb($scope.selectedColor);
-
-        $scope.selectedActor.color[0] = color.r/255;
-        $scope.selectedActor.color[1] = color.g/255;
-        $scope.selectedActor.color[2] = color.b/255;
-    });
     
     $scope.$watch("selectedActor", function()
     {
@@ -426,10 +396,18 @@ function init()
 {
     'use strict';
     
-    $(".colorpick").colorpicker().on('changeColor', function(ev)
+    $(".backgroundColorPick").colorpicker().on('changeColor', function(ev)
                                      {
                                          var color = Utilities.hexToRgb(ev.color.toHex());
                                          renderer.gl.clearColor(color.r/255, color.g/255, color.b/255, 1);
+                                     });
+
+    $(".selectedColorPick").colorpicker().on('changeColor', function(ev)
+                                     {
+                                         var color = Utilities.hexToRgb(ev.color.toHex());
+                                         angular.element("body").scope().selectedActor.color[0] = color.r/255;
+                                         angular.element("body").scope().selectedActor.color[1] = color.g/255;
+                                         angular.element("body").scope().selectedActor.color[2] = color.b/255;
                                      });
 
     canvas       = document.getElementById("canvas");

@@ -54,7 +54,7 @@
     <!-- navbar -->
     <div class="navbar navbar-default">
         <div class="navbar-header">
-            <span class="navbar-brand">My Adventure <small>Alpha Version</small></span>
+            <span class="navbar-brand">My Adventure</span>
         </div>
     </div>
     <!-- /navbar -->
@@ -93,8 +93,11 @@
                         <div class="form-group">
                             <label>Background color:</label>
                             <br>
-                            <input type="text" class="colorpick"
-                                   data-ng-model="backgroundColor">
+                            <div class="backgroundColorPick inl-bl colorpicker-element"
+                                     data-container="true"
+                                     data-color="rgb(0,0,0)"
+                                     data-inline="true">
+                                </div>
                         </div>
                         <div class="form-group">
                             <label>View distance:</label>
@@ -138,8 +141,11 @@
                             <div class="form-group">
                                 <label>Color:</label>
                                 <br>
-                                <input type="color"
-                                       data-ng-model="selectedColor">
+                                <div class="selectedColorPick inl-bl colorpicker-element"
+                                     data-container="true"
+                                     data-color="rgb(50,216,62)"
+                                     data-inline="true">
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label>Script:</label>
