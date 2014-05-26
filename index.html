@@ -102,7 +102,14 @@
                                      data-container="true"
                                      data-color="rgb(0,0,0)"
                                      data-inline="true">
-                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Gravity:</label>
+                            <br>
+                            <input type="number"
+                                   data-ng-model="game.gravity"
+                                   data-ng-disabled="game.running">
                         </div>
                         <div class="form-group">
                             <label>View distance:</label>

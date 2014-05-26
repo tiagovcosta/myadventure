@@ -42,6 +42,21 @@ module.controller("MainCtrl", function($scope)
 
     $scope.cameraPos = vec2.create();
 
+    $scope.viewDistance = 20;
+
+    $scope.$watch("viewDistance", function()
+    {
+        if(renderer !== undefined)
+        {
+            renderer.setViewDistance($scope.viewDistance);
+        }
+
+        if(inputManager !== undefined)
+        {
+            inputManager.setViewDistance($scope.viewDistance);
+        }
+    });
+
     $scope.$watch("running", function()
     {
         if(game === undefined)
@@ -145,7 +160,7 @@ module.controller("MainCtrl", function($scope)
 
         var color = $scope.selectedActor.color;
 
-        $(".selectedColorPick").colorpicker('setValue', Utilities.rgbToHex(color[0]*255, color[1]*255, color[2]*255))
+        $(".selectedColorPick").colorpicker('setValue', Utilities.rgbToHex(color[0]*255, color[1]*255, color[2]*255));
     });
     
     $scope.mouseDown = function(event)
@@ -419,7 +434,7 @@ function init()
     
     game       = new Game();
     
-    var actor1 = game.addActor(vec3.fromValues(10,0,-4),
+    var ground = game.addActor(vec3.fromValues(0,-7.5,-4),
                                vec3.fromValues(40,2,1),
                                0,
                                vec4.fromValues(0.0,0.5,0.8,1),

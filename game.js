@@ -48,6 +48,8 @@ function Game()
     this.player = null;
 
     this.running = false;
+
+    this.gravity = -10;
 }
 
 Game.prototype.update = function(dt)
@@ -208,7 +210,7 @@ Game.prototype.restartPhysics = function()
 {
     'use strict';
 
-    this.physics = new Physics();
+    this.physics = new Physics(this.gravity);
     this.physics.world.SetContactListener(contactListener);
 
     var i;

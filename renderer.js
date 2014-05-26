@@ -63,9 +63,12 @@ function Renderer(canvas)
     this.projectionMatrix = mat4.create();
     //mat4.ortho(this.projectionMatrix, 0, this.width, 0, this.height, 0.1, 100);
 
-    var ratio = this.width/this.height;
+    this.ratio = this.width/this.height;
 
-    mat4.ortho(this.projectionMatrix, 0, 20, 0, 20/ratio, 0.1, 20);
+    this.viewDistanceY = 20;
+    this.viewDistanceX = 20/this.ratio;
+
+    mat4.ortho(this.projectionMatrix, -10, 10, -7.5, 7.5, 0.1, 20);
 
     this.moveCameraPosition(0,0,0);
 }
@@ -276,4 +279,18 @@ Renderer.prototype.draw = function(actors)
         this.gl.uniform4fv(this.colorUL, actors[i].color);
         this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4);
     }
+};
+
+Renderer.prototype.setViewDistance = function(distance)
+{
+    'use strict';
+
+    var distanceY = distance/this.ratio;
+
+    this.viewDistanceY = distanceY;
+    this.viewDistanceX = distance;
+
+    mat4.ortho(this.projectionMatrix, -distance/2, distance/2, -distanceY/2, distanceY/2, 0.1, 20);
+
+    mat4.multiply(this.viewProj, this.projectionMatrix, this.viewMatrix);
 };

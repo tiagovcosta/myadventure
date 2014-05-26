@@ -13,11 +13,11 @@ var b2Vec2 = Box2D.Common.Math.b2Vec2,
     b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 
 
-function Physics()
+function Physics(gravity)
 {
     'use strict';
 
-    this.world = new b2World(new b2Vec2(0, -10), //gravity
+    this.world = new b2World(new b2Vec2(0, gravity), //gravity
                              true);             //allow sleep
 }
 

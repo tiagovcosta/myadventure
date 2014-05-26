@@ -30,6 +30,9 @@ function InputManager(canvas)
     this.scaleX           = this.width/canvas.width;
     this.scaleY           = this.height/canvas.height;
 
+    this.offsetX          = -this.width/2;
+    this.offsetY          = -this.height/2;
+
     this.canvas.onmousedown = function(event)
     {
         if(event.which === 1)
@@ -39,6 +42,8 @@ function InputManager(canvas)
         {
             self.mouseRightDown = true;
         }
+
+        //console.log(self.mouseX + "," + self.mouseY);
     };
 
     this.canvas.onmouseup = function(event)
@@ -62,8 +67,8 @@ function InputManager(canvas)
         /*self.mouseX = event.clientX - rect.left;
         self.mouseY = self.canvas.height - event.clientY + rect.top;*/
 
-        self.mouseX = x*self.scaleX;
-        self.mouseY = y*self.scaleY;
+        self.mouseX = x*self.scaleX + self.offsetX;
+        self.mouseY = y*self.scaleY + self.offsetY;
     };
 
     this.canvas.onmouseout = function(event)
@@ -99,4 +104,18 @@ InputManager.prototype.keyPressed = function(key)
     {
         return this.keyboard[key.charCodeAt()];
     }
+};
+
+InputManager.prototype.setViewDistance = function(distance)
+{
+    'use strict';
+
+    this.width   = distance;
+    this.height  = distance * this.canvas.height/this.canvas.width;
+
+    this.scaleX  = this.width/this.canvas.width;
+    this.scaleY  = this.height/this.canvas.height;
+
+    this.offsetX = -this.width/2;
+    this.offsetY = -this.height/2;
 };
