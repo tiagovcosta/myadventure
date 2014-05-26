@@ -36,8 +36,11 @@ module.controller("MainCtrl", function($scope)
     'use strict';
 
     $scope.game = null;
+    $scope.gameClone = null;
 
     $scope.running = false;
+
+    $scope.cameraPos = vec2.create();
 
     $scope.$watch("running", function()
     {
@@ -50,7 +53,25 @@ module.controller("MainCtrl", function($scope)
 
         if(game.running)
         {
+            $scope.cameraPos[0] = renderer.cameraPosition[0];
+            $scope.cameraPos[1] = renderer.cameraPosition[1];
+
+            $scope.gameClone = $scope.game.clone();
             game.restartPhysics();
+        } else
+        {
+            //Reset camera position
+
+            renderer.setCameraPosition($scope.cameraPos[0],
+                                       $scope.cameraPos[1],
+                                       0);
+
+            //Calculate selected actor on clone game
+            var i = $scope.game.actors.indexOf($scope.selectedActor);
+            $scope.selectedActor = $scope.gameClone.actors[i];
+
+            $scope.game = $scope.gameClone;
+            game = $scope.game;
         }
     });
 
@@ -410,19 +431,11 @@ function init()
     
     game       = new Game();
     
-    var actor1 = game.addActor(vec3.fromValues(10,10,-4),
-                               vec3.fromValues(5,5,5),
+    var actor1 = game.addActor(vec3.fromValues(10,0,-4),
+                               vec3.fromValues(40,2,1),
                                0,
                                vec4.fromValues(0.0,0.5,0.8,1),
-                               b2Body.b2_dynamicBody);
-
-    var script = game.newScript();
-    script.rules.push(new Rule());
-
-    script.rules[0].newCondition(conditions[0]);
-    script.rules[0].newAction(actions[0]);
-
-    actor1.script = script;
+                               b2Body.b2_staticBody);
     
     game.restartPhysics();
 

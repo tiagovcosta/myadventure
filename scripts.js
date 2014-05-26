@@ -175,6 +175,17 @@ var velocityYSnippet = new Snippet("Set Y velocity", function(actor, args)
 
 }, [new ArgumentDesc("velocityY", "number", 0)]);
 
+var destroySnippet = new Snippet("Destroy", function(actor, args)
+{
+    'use strict';
+
+    var index = game.actors.indexOf(actor);
+    game.actors.splice(index, 1);
+
+    game.physics.world.DestroyBody(actor.body);
+
+}, []);
+
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
@@ -191,5 +202,6 @@ var actions =
         forceSnippet,
         velocitySnippet,
         velocityXSnippet,
-        velocityYSnippet
+        velocityYSnippet,
+        destroySnippet
     ];

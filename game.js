@@ -1,6 +1,7 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true continue: true */
 /*global vec2, vec3, vec4,
-         Actor, Script, Physics, Box2D*/
+         Actor, Script, Physics, Box2D,
+         renderer */
 
 function DynamicActor(name, position, scale, rotation, color, type)
 {
@@ -43,6 +44,8 @@ function Game()
     this.physics = null;
     this.actors  = [];
     this.scripts = [];
+
+    this.player = null;
 
     this.running = false;
 }
@@ -97,6 +100,12 @@ Game.prototype.update = function(dt)
         actor.position[1] = actor.body.GetPosition().y;
         actor.rotation    = actor.body.GetAngle();
         actor.updateWorld();
+    }
+
+    if(this.player !== null)
+    {
+        renderer.setCameraPosition(this.player.position[0],
+                                   this.player.position[1]);
     }
 };
 
@@ -216,4 +225,34 @@ Game.prototype.restartPhysics = function()
 
         actor.body.SetUserData(actor);
     }
+};
+
+Game.prototype.clone = function()
+{
+    'use strict';
+
+    var clone = new Game();
+
+    clone.scripts = this.scripts;
+
+    var i;
+
+    for(i = 0; i < this.actors.length; i++)
+    {
+        var actor = this.actors[i];
+
+        var x = clone.addActor(vec3.clone(actor.position),
+                               vec3.clone(actor.scale),
+                               actor.rotation,
+                               vec4.clone(actor.color),
+                               actor.type);
+
+        x.actorClass = actor.actorClass;
+        x.script     = actor.script;
+    }
+
+    var playerIndex = this.actors.indexOf(this.player);
+    clone.player = clone.actors[playerIndex];
+
+    return clone;
 };

@@ -99,6 +99,22 @@ Renderer.prototype.moveCameraPosition = function(x, y, z)
     mat4.multiply(this.viewProj, this.projectionMatrix, this.viewMatrix);
 };
 
+Renderer.prototype.setCameraPosition = function(x, y, z)
+{
+    'use strict';
+    this.cameraPosition[0] = x;
+    this.cameraPosition[1] = y;
+    this.cameraPosition[2] = z;
+
+    this.centerPosition[0] = this.cameraPosition[0];
+    this.centerPosition[1] = this.cameraPosition[1];
+    this.centerPosition[2] = -200;
+
+    mat4.lookAt(this.viewMatrix, this.cameraPosition, this.centerPosition, this.up);
+
+    mat4.multiply(this.viewProj, this.projectionMatrix, this.viewMatrix);
+};
+
 Renderer.prototype.initWebGL = function(canvas)
 {
     'use strict';

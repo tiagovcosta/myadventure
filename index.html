@@ -72,6 +72,7 @@
 
     <p>
         <input type="button" value="New Actor"
+               data-ng-disabled="game.running"
                onclick="game.addActor(vec3.fromValues(10,10,-4),
                         vec3.fromValues(5,5,1),
                         0,
