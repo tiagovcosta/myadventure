@@ -143,9 +143,8 @@ module.controller("MainCtrl", function($scope)
         }
 
         var color = $scope.selectedActor.color;
-        $scope.selectedColor = Utilities.rgbToHex(color[0]*255,
-                                                  color[1]*255,
-                                                  color[2]*255);
+
+        $(".selectedColorPick").colorpicker('setValue', Utilities.rgbToHex(color[0]*255, color[1]*255, color[2]*255))
     });
     
     $scope.mouseDown = function(event)
