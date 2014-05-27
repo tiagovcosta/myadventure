@@ -435,7 +435,7 @@ function init()
     game       = new Game();
     
     var ground = game.addActor(vec3.fromValues(0,-7.5,-4),
-                               vec3.fromValues(40,2,1),
+                               vec3.fromValues(200,2,1),
                                0,
                                vec4.fromValues(0.0,0.5,0.8,1),
                                b2Body.b2_staticBody);
@@ -456,6 +456,26 @@ function init()
     var jumpRule = playerScript.newRule();
     jumpRule.newCondition(keyPressedSnippet).args.key = SpecialKeys.UP;
     jumpRule.newAction(forceSnippet).args.intensityY = 750;
+
+    var playerScript2 = game.newScript();
+    playerScript2.name = "Player_script2";
+
+    var moveLeftRule = playerScript2.newRule();
+    moveLeftRule.newCondition(keyPressedSnippet).args.key = SpecialKeys.LEFT;
+    moveLeftRule.newAction(velocityXSnippet).args.velocityX = -10;
+
+    var moveRightRule = playerScript2.newRule();
+    moveRightRule.newCondition(keyPressedSnippet).args.key = SpecialKeys.RIGHT;
+    moveRightRule.newAction(velocityXSnippet).args.velocityX = 10;
+
+    var stopMoveRule = playerScript2.newRule();
+    stopMoveRule.newCondition(keyPressedSnippet).args = {key:SpecialKeys.RIGHT, not:true};
+    stopMoveRule.newCondition(keyPressedSnippet).args = {key:SpecialKeys.LEFT, not:true};
+    stopMoveRule.newAction(velocityXSnippet).args.velocityX = 0;
+
+    var jumpRule = playerScript2.newRule();
+    jumpRule.newCondition(keyPressedSnippet).args.key = SpecialKeys.UP;
+    jumpRule.newAction(velocityYSnippet).args.velocityY = 10;
 
 
     //Init game on angularjs

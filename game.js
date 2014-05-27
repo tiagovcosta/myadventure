@@ -1,7 +1,15 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true continue: true */
 /*global vec2, vec3, vec4,
          Actor, Script, Physics, Box2D,
-         renderer */
+         renderer, directions */
+
+function Collision(actor, direction)
+{
+    'use strict';
+
+    this.actor     = actor;
+    this.direction = direction;
+}
 
 function DynamicActor(name, position, scale, rotation, color, type)
 {
@@ -30,7 +38,8 @@ DynamicActor.prototype.checkCollisions = function(actorClass,
 
     for(i = 0; i < this.collisions.length; i++)
     {
-        if(this.collisions[i].actorClass === actorClass)
+        if(this.collisions[i].actor.actorClass === actorClass &&
+           (direction === directions.Any || direction === this.collisions[i].direction))
         {
             return true;
         }
@@ -107,7 +116,8 @@ Game.prototype.update = function(dt)
     if(this.player !== null)
     {
         renderer.setCameraPosition(this.player.position[0],
-                                   this.player.position[1]);
+                                   this.player.position[1],
+                                   0);
     }
 };
 
@@ -195,15 +205,42 @@ Game.prototype.newScript = function()
 
 var contactListener = new Box2D.Dynamics.b2ContactListener();
 
-contactListener.BeginContact = function(contact, manifold)
+contactListener.BeginContact = function(contact)
 {
    'use strict';
 
     var a = contact.GetFixtureA().GetBody().GetUserData();
     var b = contact.GetFixtureB().GetBody().GetUserData();
 
-    a.collisions.push(b);
-    b.collisions.push(a);
+    var w_manifold = new Box2D.Collision.b2WorldManifold();
+    contact.GetWorldManifold(w_manifold);
+
+    var x = Math.atan2(w_manifold.m_normal.y, w_manifold.m_normal.x);
+    x = 180*x/Math.PI;
+
+    var dir1;
+    var dir2;
+
+    if(x >= -45 && x <= 45)
+    {
+        dir1 = directions.Right;
+        dir2 = directions.Left;
+    } else if(x >= 45 && x <= 135)
+    {
+        dir1 = directions.Top;
+        dir2 = directions.Bottom;
+    } else if( (x >= 135 && x <= 180) || (x >= -180 && x <= -135))
+    {
+        dir1 = directions.Left;
+        dir2 = directions.Right;
+    } else if(x >= -135 && x <= -45)
+    {
+        dir1 = directions.Bottom;
+        dir2 = directions.Top;
+    }
+
+    a.collisions.push(new Collision(b, dir1));
+    b.collisions.push(new Collision(a, dir2));
 };
 
 Game.prototype.restartPhysics = function()
@@ -258,6 +295,8 @@ Game.prototype.clone = function()
         var playerIndex = this.actors.indexOf(this.player);
         clone.player = clone.actors[playerIndex];
     }
+
+    clone.gravity = this.gravity;
 
     return clone;
 };
