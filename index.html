@@ -4,6 +4,7 @@
     <title>My Adventure</title>
 
     <link rel="stylesheet" href="bootstrap.min.css">
+    <link href="bootstrap-colorpicker-master/dist/css/bootstrap-colorpicker.min.css" rel="stylesheet">
 
     <script src="gl-matrix/common.js"></script>
     <script src="gl-matrix/vec2.js"></script>
@@ -22,8 +23,7 @@
     <script src="renderer.js"></script>
     <script src="game.js"></script>
     <script src="code.js"></script>
-    
-    <link href="bootstrap-colorpicker-master/dist/css/bootstrap-colorpicker.min.css" rel="stylesheet">
+
     <script src="bootstrap-colorpicker-master/dist/js/bootstrap-colorpicker.min.js"></script>
 
     <!-- Fragment shader program -->
@@ -95,11 +95,18 @@
                                value="{{running ? 'Pause' : 'Start'}}"
                                class="btn btn-primary btn-lg">
                         </div>
+
+                        <div class="form-group">
+                            <a id="download" data-ng-click="save()"
+                               download="level.txt"
+                               class="btn btn-primary btn-lg">Download game</a>
+                        </div>
+
                         <div class="form-group">
                             <label>Player:</label>
                             <select data-ng-options="actor.name for actor in game.actors"
                                     data-ng-model="game.player">
-                                <option value="">-- choose actor --</option>
+                                <option value="">-- Choose actor --</option>
                             </select>
                         </div>
                         <div class="form-group">

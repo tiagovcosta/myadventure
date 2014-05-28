@@ -2,7 +2,8 @@
 /*global $, window, document, Math, angular,
          vec2, vec3, vec4, mat4, b2Body,
          Actor, Renderer, Game, InputManager, SpecialKeys,
-         Script, Utilities, Rule, conditions, actions */
+         Script, Utilities, Rule, conditions, actions,
+         Blob */
 
 var renderer;
 
@@ -93,6 +94,12 @@ module.controller("MainCtrl", function($scope)
             game = $scope.game;
         }
     });
+
+    $scope.save = function()
+    {
+        var link = $("#download");
+        link.attr('href',(window.URL || window.webkitURL).createObjectURL( new Blob([ $scope.game.save() ], { type : 'text/plain' })));
+    };
 
     $scope.scripts = [];
     $scope.selectedScript = null;

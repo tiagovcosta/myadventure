@@ -1,7 +1,7 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true continue: true */
 /*global vec2, vec3, vec4,
          Actor, Script, Physics, Box2D,
-         renderer, directions */
+         renderer, directions, Blob, $ */
 
 function Collision(actor, direction)
 {
@@ -38,7 +38,7 @@ DynamicActor.prototype.checkCollisions = function(actorClass,
 
     for(i = 0; i < this.collisions.length; i++)
     {
-        if((this.collisions[i].actor.actorClass !== "" || this.collisions[i].actor.actorClass === actorClass) &&
+        if((actorClass !== "" || this.collisions[i].actor.actorClass === actorClass) &&
            (direction === directions.Any || direction === this.collisions[i].direction))
         {
             return true;
@@ -355,4 +355,13 @@ Game.prototype.clone = function()
     clone.gravity = this.gravity;
 
     return clone;
+};
+
+Game.prototype.save = function()
+{
+    'use strict';
+
+    var x = "";
+
+    return x;
 };
