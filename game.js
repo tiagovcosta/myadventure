@@ -38,7 +38,7 @@ DynamicActor.prototype.checkCollisions = function(actorClass,
 
     for(i = 0; i < this.collisions.length; i++)
     {
-        if(this.collisions[i].actor.actorClass === actorClass &&
+        if((this.collisions[i].actor.actorClass !== "" || this.collisions[i].actor.actorClass === actorClass) &&
            (direction === directions.Any || direction === this.collisions[i].direction))
         {
             return true;
@@ -89,11 +89,12 @@ Game.prototype.update = function(dt)
     var i;
 
     //Clear collisions
-
+    /*
     for(i = 0; i < this.actors.length; i++)
     {
         this.actors[i].collisions = [];
     }
+    */
 
     this.physics.world.Step(dt, //frame-rate
                             10,     //velocity iterations
@@ -241,6 +242,61 @@ contactListener.BeginContact = function(contact)
 
     a.collisions.push(new Collision(b, dir1));
     b.collisions.push(new Collision(a, dir2));
+};
+
+contactListener.EndContact = function(contact)
+{
+   'use strict';
+
+    var a = contact.GetFixtureA().GetBody().GetUserData();
+    var b = contact.GetFixtureB().GetBody().GetUserData();
+
+    var w_manifold = new Box2D.Collision.b2WorldManifold();
+    contact.GetWorldManifold(w_manifold);
+
+    var x = Math.atan2(w_manifold.m_normal.y, w_manifold.m_normal.x);
+    x = 180*x/Math.PI;
+
+    var dir1;
+    var dir2;
+
+    if(x >= -45 && x <= 45)
+    {
+        dir1 = directions.Right;
+        dir2 = directions.Left;
+    } else if(x >= 45 && x <= 135)
+    {
+        dir1 = directions.Top;
+        dir2 = directions.Bottom;
+    } else if( (x >= 135 && x <= 180) || (x >= -180 && x <= -135))
+    {
+        dir1 = directions.Left;
+        dir2 = directions.Right;
+    } else if(x >= -135 && x <= -45)
+    {
+        dir1 = directions.Bottom;
+        dir2 = directions.Top;
+    }
+
+    var i;
+
+    for(i = 0; i < a.collisions.length; i++)
+    {
+        if(a.collisions[i].actor === b)
+        {
+            a.collisions.splice(i);
+            break;
+        }
+    }
+
+    for(i = 0; i < b.collisions.length; i++)
+    {
+        if(b.collisions[i].actor === a)
+        {
+            b.collisions.splice(i);
+            break;
+        }
+    }
 };
 
 Game.prototype.restartPhysics = function()
