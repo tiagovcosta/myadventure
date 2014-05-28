@@ -38,7 +38,7 @@ DynamicActor.prototype.checkCollisions = function(actorClass,
 
     for(i = 0; i < this.collisions.length; i++)
     {
-        if((actorClass !== "" || this.collisions[i].actor.actorClass === actorClass) &&
+        if((actorClass === "" || this.collisions[i].actor.actorClass === actorClass) &&
            (direction === directions.Any || direction === this.collisions[i].direction))
         {
             return true;
