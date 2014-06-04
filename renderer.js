@@ -1,5 +1,5 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true */
-/*global Float32Array, vec2, vec3, mat4 */
+/*global Float32Array, vec2, vec3, vec4, mat4 */
 
 function Actor(position, scale, rotation, color)
 {
@@ -71,6 +71,8 @@ function Renderer(canvas)
     mat4.ortho(this.projectionMatrix, -10, 10, -7.5, 7.5, 0.1, 20);
 
     this.moveCameraPosition(0,0,0);
+
+    this.clearColor = vec4.create();
 }
 
 Renderer.prototype.transformToObjectSpace = function(pos, actor)
@@ -253,6 +255,7 @@ Renderer.prototype.initBuffers = function()
 Renderer.prototype.setClearColor = function(clearColor)
 {
     'use strict';
+    this.clearColor = clearColor;
     this.gl.clearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
 };
 

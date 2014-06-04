@@ -3,7 +3,8 @@
          vec2, vec3, vec4, mat4, b2Body,
          Actor, Renderer, Game, InputManager, SpecialKeys,
          Script, Utilities, Rule, conditions, actions,
-         Blob */
+         Blob, FileReader,
+         keyPressedSnippet, forceSnippet, velocityXSnippet, velocityYSnippet*/
 
 var renderer;
 
@@ -421,7 +422,7 @@ function init()
     $(".backgroundColorPick").colorpicker().on('changeColor', function(ev)
                                      {
                                          var color = Utilities.hexToRgb(ev.color.toHex());
-                                         renderer.gl.clearColor(color.r/255, color.g/255, color.b/255, 1);
+                                         renderer.setClearColor(vec4.fromValues(color.r/255, color.g/255, color.b/255, 1));
                                      });
 
     $(".selectedColorPick").colorpicker().on('changeColor', function(ev)
@@ -441,15 +442,15 @@ function init()
     
     game       = new Game();
     
-    var ground = game.addActor(vec3.fromValues(0,-7.5,-4),
+    /*var ground = game.addActor(vec3.fromValues(0,-7.5,-4),
                                vec3.fromValues(200,2,1),
                                0,
                                vec4.fromValues(0.0,0.5,0.8,1),
                                b2Body.b2_staticBody);
     
-    game.restartPhysics();
+    game.restartPhysics();*/
 
-    var playerScript = game.newScript();
+    /*var playerScript = game.newScript();
     playerScript.name = "Player_script";
 
     var moveLeftRule = playerScript.newRule();
@@ -467,11 +468,11 @@ function init()
     var playerScript2 = game.newScript();
     playerScript2.name = "Player_script2";
 
-    var moveLeftRule = playerScript2.newRule();
+    moveLeftRule = playerScript2.newRule();
     moveLeftRule.newCondition(keyPressedSnippet).args.key = SpecialKeys.LEFT;
     moveLeftRule.newAction(velocityXSnippet).args.velocityX = -10;
 
-    var moveRightRule = playerScript2.newRule();
+    moveRightRule = playerScript2.newRule();
     moveRightRule.newCondition(keyPressedSnippet).args.key = SpecialKeys.RIGHT;
     moveRightRule.newAction(velocityXSnippet).args.velocityX = 10;
 
@@ -480,9 +481,9 @@ function init()
     stopMoveRule.newCondition(keyPressedSnippet).args = {key:SpecialKeys.LEFT, not:true};
     stopMoveRule.newAction(velocityXSnippet).args.velocityX = 0;
 
-    var jumpRule = playerScript2.newRule();
+    jumpRule = playerScript2.newRule();
     jumpRule.newCondition(keyPressedSnippet).args.key = SpecialKeys.UP;
-    jumpRule.newAction(velocityYSnippet).args.velocityY = 10;
+    jumpRule.newAction(velocityYSnippet).args.velocityY = 10;*/
 
 
     //Init game on angularjs
@@ -491,4 +492,25 @@ function init()
     angular.element("body").scope().$apply();
 
     setInterval(update, 1000/60);
+}
+
+function load()
+{
+    'use strict';
+
+    var file = $("#file")[0].files[0];
+
+    var reader = new FileReader();
+
+    // If we use onloadend, we need to check the readyState.
+    reader.onloadend = function(evt)
+    {
+      if (evt.target.readyState === FileReader.DONE)
+      { // DONE == 2
+          game.load(evt.target.result);
+          game.restartPhysics();
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
 }

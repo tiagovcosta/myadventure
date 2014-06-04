@@ -1,7 +1,8 @@
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, indent: 4, maxerr: 50, white: true bitwise:true continue: true */
 /*global vec2, vec3, vec4,
-         Actor, Script, Physics, Box2D,
-         renderer, directions, Blob, $ */
+         Actor, Script, Physics, Box2D, ArrayBuffer, DataView, Uint16Array,
+         renderer, directions, Blob, $,
+         conditions, actions */
 
 function Collision(actor, direction)
 {
@@ -87,14 +88,6 @@ Game.prototype.update = function(dt)
     this.runScripts();
 
     var i;
-
-    //Clear collisions
-    /*
-    for(i = 0; i < this.actors.length; i++)
-    {
-        this.actors[i].collisions = [];
-    }
-    */
 
     this.physics.world.Step(dt, //frame-rate
                             10,     //velocity iterations
@@ -357,11 +350,312 @@ Game.prototype.clone = function()
     return clone;
 };
 
+function ab2str(view, offset, length)
+{
+    'use strict';
+    //return String.fromCharCode.apply(null, new Uint16Array(buf, offset, length));
+    var s = "";
+
+    var i;
+
+    for(i = 0; i < length; i++)
+    {
+        s += String.fromCharCode(view.getUint16(offset));
+        offset += 2;
+    }
+
+    return s;
+}
+
+function str2ab(str, view, offset)
+{
+    'use strict';
+    var i;
+    var strLen;
+
+    for (i = 0, strLen=str.length; i < strLen; i++)
+    {
+        view.setUint16(offset, str.charCodeAt(i));
+        offset += 2;
+    }
+
+    return offset;
+ }
+
 Game.prototype.save = function()
 {
     'use strict';
 
-    var x = "";
+    var buffer = new ArrayBuffer(10000);
 
-    return x;
+    var view = new DataView(buffer);
+    var offset = 0;
+
+    var i;
+    var j;
+    var k;
+
+    //Write background color
+    var str = JSON.stringify(renderer.clearColor);
+    view.setUint32(offset, str.length);
+    offset += 4;
+    offset = str2ab(str, view, offset);
+
+    //WRITE SCRIPTS
+    view.setUint32(offset, this.scripts.length);
+    offset += 4;
+
+    var snippetIndex;
+    var args;
+
+    for(i = 0; i < this.scripts.length; i++)
+    {
+        view.setUint32(offset, this.scripts[i].name.length);
+        offset += 4;
+        offset = str2ab(this.scripts[i].name, view, offset);
+
+        var rules = this.scripts[i].rules;
+
+        view.setUint32(offset, rules.length);
+        offset += 4;
+
+        for(j = 0; j < rules.length; j++)
+        {
+            var rule = rules[j];
+
+            view.setUint32(offset, rule.conditions.length);
+            offset += 4;
+
+            for(k = 0; k < rule.conditions.length; k++)
+            {
+                var cond = rule.conditions[k];
+
+                snippetIndex = conditions.indexOf(cond.snippet);
+
+                args = JSON.stringify(cond.args);
+
+                view.setInt32(offset, snippetIndex);
+                offset += 4;
+                view.setUint32(offset, args.length);
+                offset += 4;
+
+                offset = str2ab(args, view, offset);
+            }
+
+            view.setUint32(offset, rule.actions.length);
+            offset += 4;
+
+            for(k = 0; k < rule.actions.length; k++)
+            {
+                var action = rule.actions[k];
+
+                snippetIndex = actions.indexOf(action.snippet);
+
+                args = JSON.stringify(action.args);
+
+                view.setInt32(offset, snippetIndex);
+                offset += 4;
+                view.setUint32(offset, args.length);
+                offset += 4;
+
+                offset = str2ab(args, view, offset);
+            }
+        }
+    }
+
+    //WRITE ACTORS
+    view.setUint32(offset, this.actors.length);
+    offset += 4;
+
+    for(i = 0; i < this.actors.length; i++)
+    {
+        var actor = this.actors[i];
+
+        str = JSON.stringify(actor.position);
+        view.setUint32(offset, str.length);
+        offset += 4;
+        offset = str2ab(str, view, offset);
+
+        str = JSON.stringify(actor.scale);
+        view.setUint32(offset, str.length);
+        offset += 4;
+        offset = str2ab(str, view, offset);
+
+        view.setFloat32(offset, actor.rotation);
+        offset += 4;
+
+        str = JSON.stringify(actor.color);
+        view.setUint32(offset, str.length);
+        offset += 4;
+        offset = str2ab(str, view, offset);
+
+        view.setUint32(offset, actor.name.length);
+        offset += 4;
+        offset = str2ab(actor.name, view, offset);
+
+        view.setUint32(offset, actor.type);
+        offset += 4;
+
+        view.setUint32(offset, actor.actorClass.length);
+        offset += 4;
+        offset = str2ab(actor.actorClass, view, offset);
+
+        view.setInt32(offset, this.scripts.indexOf(actor.script));
+        offset += 4;
+    }
+
+    view.setInt32(offset, this.actors.indexOf(this.player));
+    offset += 4;
+
+    return buffer;
+};
+
+Game.prototype.load = function(file)
+{
+    'use strict';
+
+    var view = new DataView(file);
+
+    var offset = 0;
+
+    var i;
+    var j;
+    var k;
+
+    //READ BACKGROUND COLOR
+    var len = view.getUint32(offset);
+    offset += 4;
+    var str = ab2str(view, offset, len);
+    offset += len*2;
+
+    var obj = JSON.parse(str);
+    renderer.setClearColor(vec4.fromValues(obj[0], obj[1], obj[2], obj[3]));
+
+    //READ SCRIPTS
+    var numScripts = view.getUint32(offset);
+    offset += 4;
+
+    var snippetIndex;
+    var args;
+    var argsLength;
+
+    for(i = 0; i < numScripts; i++)
+    {
+        var script = this.newScript();
+
+        var nameLength = view.getUint32(offset);
+        offset += 4;
+
+        script.name = ab2str(view, offset, nameLength);
+        offset += nameLength*2;
+
+        var numRules = view.getUint32(offset);
+        offset += 4;
+
+        for(j = 0; j < numRules; j++)
+        {
+            var rule = script.newRule();
+
+            var numConditions = view.getUint32(offset);
+            offset += 4;
+
+            for(k = 0; k < numConditions; k++)
+            {
+                snippetIndex = view.getInt32(offset);
+                offset += 4;
+                argsLength = view.getUint32(offset);
+                offset += 4;
+
+                args = ab2str(view, offset, argsLength);
+                offset += argsLength*2;
+
+                var cond = rule.newCondition(conditions[snippetIndex]);
+                cond.args = JSON.parse(args);
+            }
+
+            var numActions = view.getUint32(offset);
+            offset += 4;
+
+            for(k = 0; k < numActions; k++)
+            {
+                snippetIndex = view.getInt32(offset);
+                offset += 4;
+                argsLength = view.getUint32(offset);
+                offset += 4;
+
+                args = ab2str(view, offset, argsLength);
+                offset += argsLength*2;
+
+                var action = rule.newAction(actions[snippetIndex]);
+                action.args = JSON.parse(args);
+            }
+        }
+    }
+
+    //WRITE ACTORS
+    var numActors = view.getUint32(offset);
+    offset += 4;
+
+    for(i = 0; i < numActors; i++)
+    {
+        len = view.getUint32(offset);
+        offset += 4;
+        str = ab2str(view, offset, len);
+        offset += len*2;
+
+        obj = JSON.parse(str);
+        var pos = vec3.fromValues(obj[0], obj[1], obj[2]);
+
+        len = view.getUint32(offset);
+        offset += 4;
+        str = ab2str(view, offset, len);
+        offset += len*2;
+
+        obj = JSON.parse(str);
+        var scale = vec3.fromValues(obj[0], obj[1], obj[2]);
+
+        var rotation = view.getFloat32(offset);
+        offset += 4;
+
+        len = view.getUint32(offset);
+        offset += 4;
+        str = ab2str(view, offset, len);
+        offset += len*2;
+
+        obj = JSON.parse(str);
+        var color = vec4.fromValues(obj[0], obj[1], obj[2], obj[3]);
+
+        len = view.getUint32(offset);
+        offset += 4;
+        var name = ab2str(view, offset, len);
+        offset += len*2;
+
+        var type = view.getUint32(offset);
+        offset += 4;
+
+        len = view.getUint32(offset);
+        offset += 4;
+        var actorClass = ab2str(view, offset, len);
+        offset += len*2;
+
+        var scriptIndex = view.getInt32(offset);
+        offset += 4;
+
+        var actor = this.addActor(pos, scale, rotation, color, type);
+        actor.name = name;
+        actor.actorClass = actorClass;
+
+        if(scriptIndex >= 0)
+        {
+            actor.script = this.scripts[scriptIndex];
+        }
+    }
+
+    var playerIndex = view.getInt32(offset);
+    offset += 4;
+
+    if(playerIndex >= 0)
+    {
+        this.player = this.actors[playerIndex];
+    }
 };

@@ -104,6 +104,11 @@
                         </div>
 
                         <div class="form-group">
+                        <input id="file" onchange="load()" type="file">
+                        </div>
+                        <br>
+
+                        <div class="form-group">
                             <label>Player:</label>
                             <select data-ng-options="actor.name for actor in game.actors"
                                     data-ng-model="game.player">
