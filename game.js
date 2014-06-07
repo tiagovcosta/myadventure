@@ -186,6 +186,13 @@ Game.prototype.addActor = function(position, scale, rotation, color, type)
     return x;
 };
 
+Game.prototype.removeActor = function(actor)
+{
+    'use strict';
+
+    this.actors.splice(this.actors.indexOf(actor));
+};
+
 Game.prototype.newScript = function()
 {
     'use strict';
@@ -311,6 +318,8 @@ Game.prototype.restartPhysics = function()
                                             actor.scale[1]/2,
                                             actor.type);
 
+        actor.body.SetAngle(actor.rotation);
+
         actor.body.SetUserData(actor);
     }
 };
@@ -335,6 +344,7 @@ Game.prototype.clone = function()
                                vec4.clone(actor.color),
                                actor.type);
 
+        x.name       = actor.name;
         x.actorClass = actor.actorClass;
         x.script     = actor.script;
     }
