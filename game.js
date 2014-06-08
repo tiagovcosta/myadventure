@@ -101,9 +101,12 @@ Game.prototype.update = function(dt)
     {
         var actor = this.actors[i];
 
-        actor.position[0] = actor.body.GetPosition().x;
-        actor.position[1] = actor.body.GetPosition().y;
-        actor.rotation    = actor.body.GetAngle();
+        if(actor.type !== null)
+        {
+            actor.position[0] = actor.body.GetPosition().x;
+            actor.position[1] = actor.body.GetPosition().y;
+            actor.rotation    = actor.body.GetAngle();
+        }
         actor.updateWorld();
     }
 
@@ -312,15 +315,18 @@ Game.prototype.restartPhysics = function()
     {
         var actor = this.actors[i];
 
-        actor.body = this.physics.createBox(actor.position[0],
-                                            actor.position[1],
-                                            actor.scale[0]/2,
-                                            actor.scale[1]/2,
-                                            actor.type);
+        if(actor.type !== null)
+        {
+            actor.body = this.physics.createBox(actor.position[0],
+                                                actor.position[1],
+                                                actor.scale[0]/2,
+                                                actor.scale[1]/2,
+                                                actor.type);
 
-        actor.body.SetAngle(actor.rotation);
+            actor.body.SetAngle(actor.rotation);
 
-        actor.body.SetUserData(actor);
+            actor.body.SetUserData(actor);
+        }
     }
 };
 

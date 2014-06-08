@@ -188,6 +188,7 @@
                                 <select data-ng-model="selectedActor.type"
                                         data-ng-options="k for (k,v) in actorTypes"
                                         class="form-control">
+                                    <option value="">Background</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -247,7 +248,7 @@
 
                             <!-- rules list -->
                             <h3 class="page-header">Rules List</h3>
-                            <!-- scrool spy -->
+                            <!-- scroll spy -->
                             <div style="height:320px; overflow: auto;">
                                 <div data-ng-repeat="rule in selectedScript.rules">
                                     <h4><strong>Rule {{$index+1}}</strong></h4>
