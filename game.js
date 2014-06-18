@@ -509,7 +509,13 @@ Game.prototype.save = function()
         offset += 4;
         offset = str2ab(actor.name, view, offset);
 
-        view.setUint32(offset, actor.type);
+        if(actor.type === null)
+        {
+            view.setInt32(offset, -1);
+        } else
+        {
+            view.setInt32(offset, actor.type);
+        }
         offset += 4;
 
         view.setUint32(offset, actor.actorClass.length);
@@ -646,8 +652,13 @@ Game.prototype.load = function(file)
         var name = ab2str(view, offset, len);
         offset += len*2;
 
-        var type = view.getUint32(offset);
+        var type = view.getInt32(offset);
         offset += 4;
+
+        if(type === -1)
+        {
+            type = null;
+        }
 
         len = view.getUint32(offset);
         offset += 4;
